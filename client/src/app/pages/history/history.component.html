@@ -1,0 +1,114 @@
+<section class="page" aria-label="History">
+  <h1 class="page__title">History</h1>
+  <p class="page__intro">
+    Inspect prior campaign events and session history. Every event the campaign has recorded is
+    listed with its type and timestamp, and can be filtered by kind or viewed per campaign.
+  </p>
+
+  <!-- Controls: campaign selection and type filter -->
+  <div class="controls">
+    <div class="controls__field">
+      <label for="campaign-select" class="controls__label">Campaign</label>
+      <select
+        id="campaign-select"
+        class="controls__select"
+        [value]="campaignId ?? ''"
+        (change)="selectCampaign($any($event.target).value || null)"
+        [disabled]="submitting || campaignsList.length === 0"
+      >
+        <option value="">No campaign</option>
+        @for (campaign of campaignsList; track campaign.id) {
+          <option [value]="campaign.id">{{ campaign.title }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="controls__field">
+      <label for="type-select" class="controls__label">Filter by type</label>
+      <select
+        id="type-select"
+        class="controls__select"
+        [value]="filter"
+        (change)="setFilter($any($event.target).value)"
+      >
+        @for (option of filterOptions; track option) {
+          <option [value]="option">{{ filterLabel(option) }}</option>
+        }
+      </select>
+    </div>
+  </div>
+
+  <!-- No campaigns at all -->
+  @if (campaignsList.length === 0 && campaignId === null) {
+    <p class="list__prompt">
+      Open a campaign from the campaigns screen to review its history.
+    </p>
+    <div class="card-grid">
+      <a class="card" routerLink="/campaigns">
+        <h2>Campaigns</h2>
+        <p>Open an existing campaign or start a new one.</p>
+      </a>
+    </div>
+  } @else if (campaignId === null) {
+    <p class="list__empty">
+      Select a campaign above to review its recorded history.
+    </p>
+  } @else {
+    @if (error) {
+      <div class="banner" role="alert">{{ error }}</div>
+    }
+
+    <!-- History header with counts -->
+    <h2 class="section__title">
+      Campaign history
+      @if (!loading) {
+        <span class="list__count">{{ filteredEvents.length }}</span>
+      }
+    </h2>
+    @if (hasFilter) {
+      <p class="list__filtering">
+        Showing <strong>{{ filteredEvents.length }}</strong> of type
+        <em>{{ filterLabel(filter) }}</em>.
+      </p>
+    }
+
+    @if (loading) {
+      <p class="list__empty">Loading history&hellip;</p>
+    } @else if (!hasEvents) {
+      <p class="list__empty">
+        This campaign has no recorded events yet. Events are logged as play progresses -
+        sessions, location changes, combat, and more.
+      </p>
+    } @else if (!hasFilteredEvents) {
+      <p class="list__empty">
+        No events match the selected type. Try <em>All types</em> or a different filter.
+      </p>
+    } @else {
+      <ul class="list">
+        @for (event of filteredEvents; track event.id) {
+          <li class="list__item event-row">
+            <span class="event__badge-wrap">
+              <span class="event__badge" [class]="typeBadge(event.eventType)">
+                {{ typeLabel(event.eventType) }}
+              </span>
+            </span>
+
+            <span class="event__body">
+              <span class="event__top">
+                <span class="event__desc">{{ eventDescription(event) }}</span>
+                <span class="event__id">#{{ event.id }}</span>
+              </span>
+              @if (event.details) {
+                <span class="event__details">{{ event.details }}</span>
+              }
+              <span class="event__time">
+                <span class="event__date">{{ formatDate(event.timestamp) }}</span>
+                <span class="event__datetime">{{ formatTime(event.timestamp) }}</span>
+              </span>
+            </span>
+          </li>
+        }
+      </ul>
+    }
+  }
+</section>

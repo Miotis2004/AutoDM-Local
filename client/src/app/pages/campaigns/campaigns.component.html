@@ -1,0 +1,241 @@
+<section class="page" aria-label="Campaigns">
+  <h1 class="page__title">Campaigns</h1>
+  <p class="page__intro">
+    Your campaigns live here. Create a new one, edit or archive existing ones, and select
+    the campaign you want to play.
+  </p>
+
+  @if (error) {
+    <div class="banner banner--error" role="alert">{{ error }}</div>
+  }
+
+  <!-- Create a new campaign -->
+  <section class="create" aria-labelledby="create-title">
+    <h2 id="create-title" class="create__title">Create a campaign</h2>
+    <form class="create__form" [formGroup]="createForm" (ngSubmit)="createCampaign()">
+      <div class="form__row">
+        <label class="form__label" for="create-title-input">Title <span class="form__required">*</span></label>
+        <input
+          id="create-title-input"
+          class="form__input"
+          type="text"
+          formControlName="title"
+          placeholder="The Hollow Knight"
+          maxlength="200"
+        />
+      </div>
+
+      <div class="form__row">
+        <label class="form__label" for="create-description-input">Description</label>
+        <textarea
+          id="create-description-input"
+          class="form__textarea"
+          formControlName="description"
+          rows="3"
+          placeholder="A brief synopsis of the campaign."
+        ></textarea>
+      </div>
+
+      <div class="form__grid">
+        <div class="form__row">
+          <label class="form__label" for="create-status-input">Status</label>
+          <select id="create-status-input" class="form__select" formControlName="status">
+            @for (status of statuses; track status) {
+              <option [value]="status">{{ status }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="form__row">
+          <label class="form__label" for="create-notes-input">Notes</label>
+          <input
+            id="create-notes-input"
+            class="form__input"
+            type="text"
+            formControlName="notes"
+            placeholder="Optional setup notes."
+          />
+        </div>
+      </div>
+
+      <button class="btn btn--primary" type="submit" [disabled]="submitting">
+        Create campaign
+      </button>
+    </form>
+  </section>
+
+  <!-- Campaign list -->
+  <section aria-labelledby="list-title">
+    <h2 id="list-title" class="list__title">
+      Your campaigns
+      @if (campaignList.length) {
+        <span class="list__count">{{ campaignList.length }}</span>
+      }
+    </h2>
+
+    @if (loading) {
+      <p class="list__empty">Loading campaigns&hellip;</p>
+    } @else if (!campaignList.length) {
+      <p class="list__empty">
+        No campaigns yet. Create your first campaign above to get started.
+      </p>
+    } @else {
+      <div class="card-grid">
+        @for (campaign of campaignList; track campaign.id) {
+          @if (editingId === campaign.id) {
+            <article class="card card--editing" aria-label="Editing {{ campaign.title }}">
+              <form class="edit" [formGroup]="editForm" (ngSubmit)="saveEdit(campaign)">
+                <h2 class="edit__title">Edit campaign</h2>
+
+                <div class="form__row">
+                  <label class="form__label" for="edit-title-input">Title <span class="form__required">*</span></label>
+                  <input
+                    id="edit-title-input"
+                    class="form__input"
+                    type="text"
+                    formControlName="title"
+                    maxlength="200"
+                  />
+                </div>
+
+                <div class="form__row">
+                  <label class="form__label" for="edit-description-input">Description</label>
+                  <textarea
+                    id="edit-description-input"
+                    class="form__textarea"
+                    formControlName="description"
+                    rows="3"
+                  ></textarea>
+                </div>
+
+                <div class="form__grid form__grid--2">
+                  <div class="form__row">
+                    <label class="form__label" for="edit-status-input">Status</label>
+                    <select id="edit-status-input" class="form__select" formControlName="status">
+                      @for (status of statuses; track status) {
+                        <option [value]="status">{{ status }}</option>
+                      }
+                    </select>
+                  </div>
+
+                  <div class="form__row">
+                    <label class="form__label" for="edit-lastplayed-input">Last played</label>
+                    <input
+                      id="edit-lastplayed-input"
+                      class="form__input"
+                      type="date"
+                      formControlName="lastPlayedAt"
+                    />
+                  </div>
+                </div>
+
+                <div class="form__row">
+                  <label class="form__label" for="edit-notes-input">Notes</label>
+                  <input
+                    id="edit-notes-input"
+                    class="form__input"
+                    type="text"
+                    formControlName="notes"
+                  />
+                </div>
+
+                <div class="edit__actions">
+                  <button class="btn btn--primary" type="submit" [disabled]="submitting">Save</button>
+                  <button class="btn btn--ghost" type="button" [disabled]="submitting" (click)="cancelEdit()">Cancel</button>
+                </div>
+              </form>
+            </article>
+          } @else {
+            <article class="card" aria-label="Campaign {{ campaign.title }}">
+              <div class="card__head">
+                <h2 class="card__title">{{ campaign.title }}</h2>
+                @if (campaign.status === 'ARCHIVED') {
+                  <span class="badge badge--archived">Archived</span>
+                }
+              </div>
+
+              @if (campaign.description) {
+                <p class="card__desc">{{ campaign.description }}</p>
+              }
+
+              <ul class="card__meta">
+                <li><span class="card__meta-label">Status</span> {{ campaign.status }}</li>
+                @if (campaign.createdAt) {
+                  <li><span class="card__meta-label">Created</span> {{ campaign.createdAt }}</li>
+                }
+                @if (campaign.lastPlayedAt) {
+                  <li><span class="card__meta-label">Last played</span> {{ campaign.lastPlayedAt }}</li>
+                }
+              </ul>
+
+              @if (campaign.notes) {
+                <p class="card__notes">{{ campaign.notes }}</p>
+              }
+
+              <ul class="card__actions">
+                @if (campaign.status !== 'ARCHIVED') {
+                  <li>
+                    <button class="btn btn--sm btn--primary" type="button" [disabled]="submitting" (click)="select(campaign)">
+                      Select
+                    </button>
+                  </li>
+                }
+                <li>
+                  <button class="btn btn--sm" type="button" [disabled]="submitting" (click)="startEdit(campaign)">
+                    Edit
+                  </button>
+                </li>
+                @if (campaign.status !== 'ARCHIVED') {
+                  <li>
+                    <button class="btn btn--sm btn--warn" type="button" [disabled]="submitting" (click)="confirmAction(campaign.id, 'archive', campaign.title)">
+                      Archive
+                    </button>
+                  </li>
+                }
+                <li>
+                  <button class="btn btn--sm btn--danger" type="button" [disabled]="submitting" (click)="confirmAction(campaign.id, 'delete', campaign.title)">
+                    Delete
+                  </button>
+                </li>
+              </ul>
+            </article>
+          }
+        }
+      </div>
+    }
+  </section>
+
+  <!-- Destructive-action confirmation -->
+  @if (pendingAction) {
+    <div class="modal__scrim" role="presentation" (click)="cancelAction()"></div>
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <h2 id="modal-title" class="modal__title">
+        @if (pendingAction.kind === 'archive') {
+          Archive campaign
+        } @else {
+          Delete campaign
+        }
+      </h2>
+      @if (pendingAction.kind === 'delete') {
+        <p class="modal__body">
+          This permanently deletes "{{ pendingAction.title }}" and cannot be undone. Are you sure
+          you want to continue?
+        </p>
+      } @else {
+        <p class="modal__body">
+          This archives "{{ pendingAction.title }}", making it inactive. You can still view and
+          re-activate it later.
+        </p>
+      }
+      <div class="modal__actions">
+        <button class="btn btn--ghost" type="button" [disabled]="submitting" (click)="cancelAction()">
+          Cancel
+        </button>
+        <button class="btn btn--danger" type="button" [disabled]="submitting" (click)="executeAction()">
+          @if (pendingAction.kind === 'archive') { Archive } @else { Delete }
+        </button>
+      </div>
+    </section>
+  }
+</section>
+

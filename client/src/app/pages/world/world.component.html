@@ -1,0 +1,230 @@
+<section class="page" aria-label="World">
+  <h1 class="page__title">World</h1>
+  <p class="page__intro">
+    Build the world your campaign takes place in. Create regions to group places, add locations the
+    party can visit, and turn places into settlements or points of interest. Everything here is
+    saved to the active campaign.
+  </p>
+
+  @if (!this.hasCampaign) {
+    <p class="list__prompt">Select a campaign to manage its world.</p>
+  } @else {
+    @if (error) {
+      <div class="banner banner--error" role="alert">{{ error }}</div>
+    }
+
+    <!-- Regions -->
+    <section class="create" aria-labelledby="region-title">
+      <h2 id="region-title" class="create__title">Region</h2>
+      <form class="create__form" [formGroup]="regionForm" (ngSubmit)="createRegion()">
+        <div class="form__row">
+          <label class="form__label" for="create-region-name">Name <span class="form__required">*</span></label>
+          <input id="create-region-name" class="form__input" type="text" formControlName="name" placeholder="The Wilds" maxlength="255" />
+          @if (regionForm.get('name')?.dirty && getError('name')) {
+            <span class="form__invalid">{{ getError('name') }}</span>
+          }
+        </div>
+
+        <div class="form__row">
+          <label class="form__label" for="create-region-description">Description</label>
+          <input id="create-region-description" class="form__input" type="text" formControlName="description" placeholder="Optional" />
+        </div>
+
+        <button class="btn btn--primary" type="submit" [disabled]="submitting">Create region</button>
+      </form>
+    </section>
+
+    @if (regionList.length) {
+      <section aria-labelledby="region-list-title">
+        <h2 id="region-list-title" class="list__title">
+          Regions
+          @if (regionList.length) {
+            <span class="list__count">{{ regionList.length }}</span>
+          }
+        </h2>
+        <ul class="chip-row">
+          @for (region of regionList; track region.id) {
+            <li class="chip">{{ region.name }}</li>
+          }
+        </ul>
+      </section>
+    }
+
+    <!-- Locations -->
+    <section class="create" aria-labelledby="location-title">
+      <h2 id="location-title" class="create__title">Location</h2>
+      <form class="create__form" [formGroup]="locationForm" (ngSubmit)="createLocation()">
+        <div class="form__row">
+          <label class="form__label" for="create-location-name">Name <span class="form__required">*</span></label>
+          <input id="create-location-name" class="form__input" type="text" formControlName="name" placeholder="The Crossroads" maxlength="255" />
+          @if (locationForm.get('name')?.dirty && getError('name')) {
+            <span class="form__invalid">{{ getError('name') }}</span>
+          }
+        </div>
+
+        <div class="form__row">
+          <label class="form__label" for="create-location-region">Region</label>
+          <select id="create-location-region" class="form__select" formControlName="regionId">
+            <option value="">-- no region --</option>
+            @for (region of regionList; track region.id) {
+              <option [value]="region.id">{{ region.name }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="form__row">
+          <label class="form__label" for="create-location-description">Description</label>
+          <input id="create-location-description" class="form__input" type="text" formControlName="description" placeholder="Optional" />
+        </div>
+
+        <button class="btn btn--primary" type="submit" [disabled]="submitting">Create location</button>
+      </form>
+    </section>
+
+    @if (locationList.length) {
+      <section aria-labelledby="location-list-title">
+        <h2 id="location-list-title" class="list__title">
+          Places
+          @if (locationList.length) {
+            <span class="list__count">{{ locationList.length }}</span>
+          }
+        </h2>
+        @if (loading) {
+          <p class="list__empty">Loading locations&hellip;</p>
+        } @else {
+          <ul class="chip-row">
+            @for (location of locationList; track location.id) {
+              <li class="chip">{{ location.name }}
+                @if (location.discovered) {
+                  <span class="badge badge--friendly">discovered</span>
+                }
+              </li>
+            }
+          </ul>
+        }
+      </section>
+    }
+
+    <!-- Settlements -->
+    <section class="create" aria-labelledby="settlement-title">
+      <h2 id="settlement-title" class="create__title">Settlement</h2>
+      <form class="create__form" [formGroup]="settlementForm" (ngSubmit)="createSettlement()">
+        <div class="form__row">
+          <label class="form__label" for="create-settlement-name">Name <span class="form__required">*</span></label>
+          <input id="create-settlement-name" class="form__input" type="text" formControlName="name" placeholder="Riverford" maxlength="255" />
+          @if (settlementForm.get('name')?.dirty && getError('name')) {
+            <span class="form__invalid">{{ getError('name') }}</span>
+          }
+        </div>
+
+        <div class="form__grid">
+          <div class="form__row">
+            <label class="form__label" for="create-settlement-type">Type</label>
+            <select id="create-settlement-type" class="form__select" formControlName="type">
+              @for (type of settlementTypes; track type) {
+                <option [value]="type">{{ type }}</option>
+              }
+            </select>
+          </div>
+          <div class="form__row">
+            <label class="form__label" for="create-settlement-population">Population</label>
+            <input id="create-settlement-population" class="form__input" type="number" min="1" formControlName="population" />
+          </div>
+        </div>
+
+        <div class="form__row">
+          <label class="form__label" for="create-settlement-region">Region</label>
+          <select id="create-settlement-region" class="form__select" formControlName="regionId">
+            <option value="">-- no region --</option>
+            @for (region of regionList; track region.id) {
+              <option [value]="region.id">{{ region.name }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="form__row">
+          <label class="form__label" for="create-settlement-description">Description</label>
+          <input id="create-settlement-description" class="form__input" type="text" formControlName="description" placeholder="Optional" />
+        </div>
+
+        <button class="btn btn--primary" type="submit" [disabled]="submitting">Create settlement</button>
+      </form>
+    </section>
+
+    @if (settlementList.length) {
+      <section aria-labelledby="settlement-list-title">
+        <h2 id="settlement-list-title" class="list__title">
+          Settlements
+          @if (settlementList.length) {
+            <span class="list__count">{{ settlementList.length }}</span>
+          }
+        </h2>
+        <ul class="chip-row">
+          @for (settlement of settlementList; track settlement.id) {
+            <li class="chip">{{ settlement.name }} <span class="badge badge--neutral">{{ settlement.type }}</span></li>
+          }
+        </ul>
+      </section>
+    }
+
+    <!-- Points of interest -->
+    <section class="create" aria-labelledby="poi-title">
+      <h2 id="poi-title" class="create__title">Point of interest</h2>
+      <form class="create__form" [formGroup]="poiForm" (ngSubmit)="createPointOfInterest()">
+        <div class="form__row">
+          <label class="form__label" for="create-poi-name">Name <span class="form__required">*</span></label>
+          <input id="create-poi-name" class="form__input" type="text" formControlName="name" placeholder="The Broken Sword" maxlength="255" />
+          @if (poiForm.get('name')?.dirty && getError('name')) {
+            <span class="form__invalid">{{ getError('name') }}</span>
+          }
+        </div>
+
+        <div class="form__row">
+          <label class="form__label" for="create-poi-category">Category</label>
+          <select id="create-poi-category" class="form__select" formControlName="category">
+            @for (category of categories; track category) {
+              <option [value]="category">{{ category }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="form__row">
+          <label class="form__label" for="create-poi-region">Region</label>
+          <select id="create-poi-region" class="form__select" formControlName="regionId">
+            <option value="">-- no region --</option>
+            @for (region of regionList; track region.id) {
+              <option [value]="region.id">{{ region.name }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="form__row">
+          <label class="form__label" for="create-poi-description">Description</label>
+          <input id="create-poi-description" class="form__input" type="text" formControlName="description" placeholder="Optional" />
+        </div>
+
+        <button class="btn btn--primary" type="submit" [disabled]="submitting">Create point of interest</button>
+      </form>
+    </section>
+
+    @if (poiList.length) {
+      <section aria-labelledby="poi-list-title">
+        <h2 id="poi-list-title" class="list__title">
+          Points of interest
+          @if (poiList.length) {
+            <span class="list__count">{{ poiList.length }}</span>
+          }
+        </h2>
+        <ul class="chip-row">
+          @for (poi of poiList; track poi.id) {
+            <li class="chip">{{ poi.name }}
+              @if (poi.category) {
+                <span class="badge badge--neutral">{{ poi.category }}</span>
+              }
+            </li>
+          }
+        </ul>
+      </section>
+    }
+  }
+</section>

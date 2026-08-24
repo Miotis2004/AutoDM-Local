@@ -1,0 +1,174 @@
+<section class="page" aria-label="Creature Templates">
+  <h1 class="page__title">Creature Templates</h1>
+  <p class="page__intro">
+    Reusable blueprints for the enemies in your campaign. Create a template with a combat profile,
+    edit the stats as the balance evolves, and instantiate fresh enemies from it during a fight.
+  </p>
+
+  @if (!this.hasCampaign) {
+    <p class="list__prompt">Select a campaign to manage its creature templates.</p>
+  } @else {
+    @if (error) {
+      <div class="banner banner--error" role="alert">{{ error }}</div>
+    }
+
+    <section class="create" aria-labelledby="create-title">
+      <h2 id="create-title" class="create__title">Create a template</h2>
+      <form class="create__form" [formGroup]="createForm" (ngSubmit)="createTemplate()">
+        <div class="form__row">
+          <label class="form__label" for="create-name-input">Name <span class="form__required">*</span></label>
+          <input id="create-name-input" class="form__input" type="text" formControlName="name" placeholder="Goblin" maxlength="150" />
+          @if (createForm.get('name')?.dirty && getError('name')) {
+            <span class="form__invalid">{{ getError('name') }}</span>
+          }
+        </div>
+
+        <div class="form__row">
+          <label class="form__label" for="create-description-input">Description</label>
+          <textarea id="create-description-input" class="form__textarea" formControlName="description" rows="2" placeholder="Optional description"></textarea>
+        </div>
+
+        <div class="form__grid">
+          <div class="form__row">
+            <label class="form__label" for="create-health-input">Health</label>
+            <input id="create-health-input" class="form__input" type="number" step="1" formControlName="health" placeholder="Optional" />
+          </div>
+          <div class="form__row">
+            <label class="form__label" for="create-defense-input">Defense</label>
+            <input id="create-defense-input" class="form__input" type="number" step="1" formControlName="defense" placeholder="Optional" />
+          </div>
+        </div>
+
+        <div class="form__grid">
+          <div class="form__row">
+            <label class="form__label" for="create-attack-input">Attack</label>
+            <input id="create-attack-input" class="form__input" type="number" step="1" formControlName="attack" placeholder="Optional" />
+          </div>
+          <div class="form__row">
+            <label class="form__label" for="create-damage-input">Damage</label>
+            <input id="create-damage-input" class="form__input" type="number" step="1" formControlName="damage" placeholder="Optional" />
+          </div>
+        </div>
+
+        <div class="form__grid">
+          <div class="form__row">
+            <label class="form__label" for="create-init-input">Initiative Modifier</label>
+            <input id="create-init-input" class="form__input" type="number" step="1" formControlName="initiativeModifier" placeholder="Optional" />
+          </div>
+          <div class="form__row">
+            <label class="form__label" for="create-behavior-input">Behaviour Notes</label>
+            <input id="create-behavior-input" class="form__input" type="text" formControlName="behaviorNotes" placeholder="Optional tactical guidance" />
+          </div>
+        </div>
+
+        <button class="btn btn--primary" type="submit" [disabled]="submitting">Create template</button>
+      </form>
+    </section>
+
+    <section aria-labelledby="list-title">
+      <h2 id="list-title" class="list__title">
+        Templates
+        @if (templateList.length) {
+          <span class="list__count">{{ templateList.length }}</span>
+        }
+      </h2>
+
+      @if (loading) {
+        <p class="list__empty">Loading creature templates&hellip;</p>
+      } @else if (!templateList.length) {
+        <p class="list__empty">No creature templates yet. Create your first template above to get started.</p>
+      } @else {
+        <div class="card-grid">
+          @for (template of templateList; track template.id) {
+            @if (editingId === template.id) {
+              <article class="card card--editing" aria-label="Editing {{ template.name }}">
+                <form class="edit" (ngSubmit)="saveEdit()">
+                  <h3 class="edit__title">Edit {{ template.name }}</h3>
+                  <div class="edit__fields">
+                    <label class="form__row">
+                      <span class="form__label">Health</span>
+                      <input class="form__input" type="number" step="1" [formControl]="field('health')" placeholder="Optional" />
+                    </label>
+                    <label class="form__row">
+                      <span class="form__label">Defense</span>
+                      <input class="form__input" type="number" step="1" [formControl]="field('defense')" placeholder="Optional" />
+                    </label>
+                    <label class="form__row">
+                      <span class="form__label">Attack</span>
+                      <input class="form__input" type="number" step="1" [formControl]="field('attack')" placeholder="Optional" />
+                    </label>
+                    <label class="form__row">
+                      <span class="form__label">Damage</span>
+                      <input class="form__input" type="number" step="1" [formControl]="field('damage')" placeholder="Optional" />
+                    </label>
+                    <label class="form__row">
+                      <span class="form__label">Initiative Modifier</span>
+                      <input class="form__input" type="number" step="1" [formControl]="field('initiativeModifier')" placeholder="Optional" />
+                    </label>
+                    <label class="form__row">
+                      <span class="form__label">Behaviour Notes</span>
+                      <input class="form__input" type="text" [formControl]="field('behaviorNotes')" placeholder="Optional" />
+                    </label>
+                    <label class="form__row" style="grid-column: 1 / -1;">
+                      <span class="form__label">Description</span>
+                      <textarea class="form__textarea" rows="2" [formControl]="field('description')" placeholder="Optional"></textarea>
+                    </label>
+                  </div>
+                  <div class="edit__actions">
+                    <button class="btn btn--sm btn--primary" type="submit" [disabled]="submitting">Save</button>
+                    <button class="btn btn--sm btn--ghost" type="button" (click)="cancelEdit()">Cancel</button>
+                  </div>
+                </form>
+              </article>
+            } @else {
+              <article class="card" aria-label="Creature template {{ template.name }}">
+                <div class="card__head">
+                  <h2 class="card__title">{{ template.name }}</h2>
+                </div>
+                @if (template.description) {
+                  <p class="card__desc">{{ template.description }}</p>
+                }
+                <ul class="card__meta">
+                  @if (template.health != null) {
+                    <li><span class="card__meta-label">Health</span> {{ template.health }}</li>
+                  }
+                  @if (template.defense != null) {
+                    <li><span class="card__meta-label">Defense</span> {{ template.defense }}</li>
+                  }
+                  @if (template.attack != null) {
+                    <li><span class="card__meta-label">Attack</span> {{ template.attack }}</li>
+                  }
+                  @if (template.damage != null) {
+                    <li><span class="card__meta-label">Damage</span> {{ template.damage }}</li>
+                  }
+                  @if (template.initiativeModifier != null) {
+                    <li><span class="card__meta-label">Initiative</span> {{ template.initiativeModifier }}</li>
+                  }
+                </ul>
+                @if (template.behaviorNotes) {
+                  <p class="card__notes">{{ template.behaviorNotes }}</p>
+                }
+                <ul class="card__actions">
+                  <li><button class="btn btn--sm btn--ghost" type="button" (click)="openEdit(template)">Edit</button></li>
+                  <li><button class="btn btn--sm btn--danger" type="button" (click)="confirmDelete(template.id)">Remove</button></li>
+                </ul>
+              </article>
+            }
+          }
+        </div>
+      }
+    </section>
+  }
+</section>
+
+@if (deletingId !== null) {
+  <div class="modal__scrim" role="presentation" (click)="cancelDelete()"></div>
+  <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <h2 id="modal-title" class="modal__title">Remove template</h2>
+    <p class="modal__body">This permanently removes the creature template from the campaign. Enemies instantiated from it are unaffected. This cannot be undone.</p>
+    <div class="modal__actions">
+      <button class="btn btn--sm btn--ghost" type="button" (click)="cancelDelete()">Cancel</button>
+      <button class="btn btn--sm btn--danger" type="button" (click)="deleteTemplate()" [disabled]="submitting">Remove</button>
+    </div>
+  </section>
+}

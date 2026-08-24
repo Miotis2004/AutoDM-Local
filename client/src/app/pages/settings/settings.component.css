@@ -1,0 +1,124 @@
+/* Settings page styles.
+ *
+ * Shared layout primitives (`.page`, `.card`, buttons, form fields) come from the global
+ * styles and {@link ../management-shared.css}. This file styles the settings-specific layout:
+ * labelled sections of related controls.
+ */
+
+/* Confirmation notice shown after a change is persisted. */
+.save-notice {
+  margin: 0 0 1.25rem;
+  padding: 0.6rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid #bbf7d0;
+  background: #f0fdf4;
+  color: #166534;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+/* A labelled section of related controls. */
+.setting-card {
+  margin-bottom: 1.5rem;
+  padding: 1.5rem 1.75rem;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+}
+
+.setting-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.setting-card__title {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 650;
+}
+
+.setting-card__desc {
+  margin: 0 0 1.1rem;
+  font-size: 0.9rem;
+  color: #4b5563;
+}
+
+.setting-card--summary {
+  background: #f9fafb;
+}
+
+/* Meta rows in the summary section. */
+.setting-card__meta {
+  list-style: none;
+  margin: 0 0 1.25rem;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  gap: 0.75rem 1.5rem;
+}
+
+.setting-card__meta-label {
+  display: block;
+  margin-bottom: 0.15rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.setting-card__meta span:last-child {
+  font-size: 0.95rem;
+  color: #111827;
+  font-weight: 500;
+}
+
+.setting-card__actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Plain text input variant. */
+.form__input--text {
+  max-width: 34rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.9rem;
+}
+
+/* Small helper text under a field. */
+.form__hint {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+/* Inline checkbox label. */
+.form__row--inline {
+  gap: 0.5rem;
+}
+
+.form__check {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.9rem;
+  color: #374151;
+  cursor: pointer;
+}
+
+.form__check input[type='checkbox'] {
+  width: 1rem;
+  height: 1rem;
+  accent-color: #2563eb;
+}
+
+@media (max-width: 40rem) {
+  .setting-card {
+    padding: 1.25rem;
+  }
+  .setting-card__meta {
+    grid-template-columns: 1fr;
+  }
+}

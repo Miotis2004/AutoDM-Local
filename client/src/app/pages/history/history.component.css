@@ -1,0 +1,192 @@
+/* History page styles. Shared page/card classes live in the global styles.css. */
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  margin-bottom: 2.5rem;
+  padding: 1.25rem 1.5rem;
+  border-radius: 0.75rem;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+}
+
+.controls__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 14rem;
+}
+
+.controls__label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.controls__select {
+  padding: 0.55rem 0.75rem;
+  font-size: 0.95rem;
+  color: #1f2937;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+}
+
+.controls__select:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+/* History list */
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.list__count {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #6b7280;
+}
+
+.list__filtering {
+  margin: 0 0 1rem;
+  font-size: 0.85rem;
+  color: #4b5563;
+}
+
+.list__prompt,
+.list__empty {
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  background: #f9fafb;
+  border: 1px dashed #d1d5db;
+  color: #6b7280;
+}
+
+.event-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid #e5e7eb;
+  border-left: 4px solid #d1d5db;
+  border-radius: 0.6rem;
+  background: #ffffff;
+}
+
+.event__badge-wrap {
+  flex: none;
+}
+
+.event__badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.35rem;
+  background: #eef2ff;
+  color: #3730a3;
+  white-space: nowrap;
+  text-align: center;
+  min-width: 6rem;
+}
+
+.event__body {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.event__top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.event__desc {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.event__id {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #9ca3af;
+}
+
+.event__details {
+  font-size: 0.8rem;
+  color: #6b7280;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  word-break: break-all;
+}
+
+.event__time {
+  display: flex;
+  gap: 0.75rem;
+  font-size: 0.8rem;
+  color: #4b5563;
+}
+
+.event__date {
+  font-weight: 600;
+  color: #374151;
+}
+
+/* Event-type badges */
+.badge--session {
+  background: #eef2ff;
+  color: #3730a3;
+}
+
+.badge--combat {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.badge--location {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.badge--quest {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.badge--item {
+  background: #ddd6fe;
+  color: #5b21b6;
+}
+
+.badge--faction {
+  background: #cffafe;
+  color: #155e75;
+}
+
+.badge--rest {
+  background: #fce7f3;
+  color: #9d174d;
+}
+
+.badge--action {
+  background: #e5e7eb;
+  color: #374151;
+}

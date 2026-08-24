@@ -1,0 +1,158 @@
+<section class="page" aria-label="Factions">
+  <h1 class="page__title">Factions</h1>
+  <p class="page__intro">
+    Manage the organizations, guilds, and powers that shape the world. Create a faction, edit its
+    standing and disposition, or remove it.
+  </p>
+
+  @if (!this.hasCampaign) {
+    <p class="list__prompt">Select a campaign to manage its factions.</p>
+  } @else {
+    @if (error) {
+      <div class="banner banner--error" role="alert">{{ error }}</div>
+    }
+
+    <section class="create" aria-labelledby="create-title">
+      <h2 id="create-title" class="create__title">Create a faction</h2>
+      <form class="create__form" [formGroup]="createForm" (ngSubmit)="createFaction()">
+        <div class="form__row">
+          <label class="form__label" for="create-name-input">Name <span class="form__required">*</span></label>
+          <input id="create-name-input" class="form__input" type="text" formControlName="name" placeholder="The Adventurers' Guild" maxlength="120" />
+          @if (createForm.get('name')?.dirty && getError('name')) {
+            <span class="form__invalid">{{ getError('name') }}</span>
+          }
+        </div>
+
+        <div class="form__row">
+          <label class="form__label" for="create-description-input">Description</label>
+          <textarea id="create-description-input" class="form__textarea" formControlName="description" rows="3" placeholder="What is this faction about?"></textarea>
+        </div>
+
+        <div class="form__grid">
+          <div class="form__row">
+            <label class="form__label" for="create-disposition-input">Disposition</label>
+            <select id="create-disposition-input" class="form__select" formControlName="disposition">
+              @for (d of dispositions; track d) {
+                <option [value]="d">{{ d }}</option>
+              }
+            </select>
+          </div>
+          <div class="form__row">
+            <label class="form__label" for="create-reputation-input">Reputation</label>
+            <select id="create-reputation-input" class="form__select" formControlName="reputation">
+              @for (r of reputations; track r) {
+                <option [value]="r">{{ r }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <button class="btn btn--primary" type="submit" [disabled]="submitting">Create faction</button>
+      </form>
+    </section>
+
+    <section aria-labelledby="list-title">
+      <h2 id="list-title" class="list__title">
+        Factions
+        @if (factionList.length) {
+          <span class="list__count">{{ factionList.length }}</span>
+        }
+      </h2>
+
+      @if (loading) {
+        <p class="list__empty">Loading factions&hellip;</p>
+      } @else if (!factionList.length) {
+        <p class="list__empty">No factions yet. Create your first faction above to get started.</p>
+      } @else {
+        <div class="card-grid">
+          @for (faction of factionList; track faction.id) {
+            @if (editingId === faction.id) {
+              <article class="card card--editing" aria-label="Editing {{ faction.name }}">
+                <form class="edit" [formGroup]="editForm" (ngSubmit)="saveEdit(faction)">
+                  <h2 class="edit__title">Edit faction</h2>
+
+                  <div class="form__row">
+                    <label class="form__label" for="edit-name-input">Name <span class="form__required">*</span></label>
+                    <input id="edit-name-input" class="form__input" type="text" formControlName="name" maxlength="120" />
+                  </div>
+
+                  <div class="form__row">
+                    <label class="form__label" for="edit-description-input">Description</label>
+                    <textarea id="edit-description-input" class="form__textarea" formControlName="description" rows="3"></textarea>
+                  </div>
+
+                  <div class="form__grid">
+                    <div class="form__row">
+                      <label class="form__label" for="edit-disposition-input">Disposition</label>
+                      <select id="edit-disposition-input" class="form__select" formControlName="disposition">
+                        @for (d of dispositions; track d) {
+                          <option [value]="d">{{ d }}</option>
+                        }
+                      </select>
+                    </div>
+                    <div class="form__row">
+                      <label class="form__label" for="edit-reputation-input">Reputation</label>
+                      <select id="edit-reputation-input" class="form__select" formControlName="reputation">
+                        @for (r of reputations; track r) {
+                          <option [value]="r">{{ r }}</option>
+                        }
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="edit__actions">
+                    <button class="btn btn--primary" type="submit" [disabled]="submitting">Save</button>
+                    <button class="btn btn--ghost" type="button" [disabled]="submitting" (click)="cancelEdit()">Cancel</button>
+                  </div>
+                </form>
+              </article>
+            } @else {
+              <article class="card" aria-label="Faction {{ faction.name }}">
+                <div class="card__head">
+                  <h2 class="card__title">{{ faction.name }}</h2>
+                  @if (faction.disposition === 'HOSTILE' || faction.disposition === 'NEUTRAL_HOSTILE') {
+                    <span class="badge badge--hostile">{{ faction.disposition }}</span>
+                  } @else if (faction.disposition === 'FRIENDLY' || faction.disposition === 'FRIENDLY_NEUTRAL') {
+                    <span class="badge badge--friendly">{{ faction.disposition }}</span>
+                  } @else {
+                    <span class="badge badge--neutral">{{ faction.disposition }}</span>
+                  }
+                </div>
+
+                @if (faction.description) {
+                  <p class="card__desc">{{ faction.description }}</p>
+                }
+
+                @if (faction.reputation) {
+                  <ul class="card__meta">
+                    <li><span class="card__meta-label">Reputation</span> {{ faction.reputation }}</li>
+                  </ul>
+                }
+
+                <ul class="card__actions">
+                  <li><button class="btn btn--sm" type="button" [disabled]="submitting" (click)="startEdit(faction)">Edit</button></li>
+                  <li><button class="btn btn--sm btn--danger" type="button" [disabled]="submitting" (click)="confirmDelete(faction)">Delete</button></li>
+                </ul>
+              </article>
+            }
+          }
+        </div>
+      }
+    </section>
+  }
+
+  @if (pendingDelete) {
+    <div class="modal__scrim" role="presentation" (click)="cancelDelete()"></div>
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <h2 id="modal-title" class="modal__title">Delete faction</h2>
+      <p class="modal__body">
+        This permanently deletes "{{ pendingDelete.name }}" and cannot be undone. Are you sure you
+        want to continue?
+      </p>
+      <div class="modal__actions">
+        <button class="btn btn--ghost" type="button" [disabled]="submitting" (click)="cancelDelete()">Cancel</button>
+        <button class="btn btn--danger" type="button" [disabled]="submitting" (click)="executeDelete()">Delete</button>
+      </div>
+    </section>
+  }
+</section>

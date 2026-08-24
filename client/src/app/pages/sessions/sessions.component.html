@@ -1,0 +1,130 @@
+<section class="page" aria-label="Sessions">
+  <h1 class="page__title">Sessions</h1>
+  <p class="page__intro">
+    Start, resume, and end play sessions, and review every session your campaign has run.
+  </p>
+
+  <!-- No campaign selected -->
+  @if (campaignId === null) {
+    <p class="list__prompt">
+      Open a campaign from the campaigns screen to manage its sessions.
+    </p>
+    <div class="card-grid">
+      <a class="card" routerLink="/campaigns">
+        <h2>Campaigns</h2>
+        <p>Open an existing campaign or start a new one.</p>
+      </a>
+    </div>
+  } @else {
+    <!-- Session controls -->
+    <div class="controls">
+      <div class="controls__head">
+        <h2 class="controls__title">
+          Session for <span class="controls__campaign">{{ campaignTitle }}</span>
+        </h2>
+        @if (activeSession) {
+          <span class="badge badge--active">Active session</span>
+        }
+      </div>
+
+      @if (error) {
+        <div class="banner" role="alert">{{ error }}</div>
+      }
+
+      <div class="controls__actions">
+        <button
+          class="btn btn--primary"
+          type="button"
+          [disabled]="submitting"
+          (click)="startSession()"
+        >
+          Start new session
+        </button>
+        <button
+          class="btn btn--ghost"
+          type="button"
+          [disabled]="submitting || !canResume"
+          (click)="resumeSession()"
+        >
+          Resume last session
+        </button>
+        <button
+          class="btn btn--danger"
+          type="button"
+          [disabled]="submitting || !activeSession"
+          (click)="endSession()"
+        >
+          End session
+        </button>
+      </div>
+
+      @if (activeSession) {
+        <p class="controls__active">
+          The active session started at {{ formatTime(activeSession.startTime) }}.
+          Use <em>End session</em> when play finishes.
+        </p>
+      }
+    </div>
+
+    <!-- History -->
+    <h2 class="section__title">
+      Session history
+      <span class="list__count">{{ sessionsList.length }}</span>
+    </h2>
+
+    @if (loading) {
+      <p class="list__empty">Loading session history&hellip;</p>
+    } @else if (!hasSessions) {
+      <p class="list__empty">
+        No sessions have been started for this campaign yet.
+        Use <em>Start new session</em> above to begin.
+      </p>
+    } @else {
+      <ul class="list">
+        @for (session of sessionsList; track session.id) {
+          <li class="list__item session-row" [class.session-row--active]="isActive(session)">
+            <button
+              class="session-row__toggle"
+              type="button"
+              aria-expanded="{{ expandedId === session.id }}"
+              aria-label="Toggle events for this session"
+              (click)="toggleSession(session)"
+            >
+              <span class="session-row__chevron" [class.session-row__chevron--open]="expandedId === session.id">&#9662;</span>
+            </button>
+
+            <span class="session-row__body">
+              <span class="session-row__top">
+                <span class="session-row__id">Session #{{ session.id }}</span>
+                <span class="badge" [class]="'badge ' + statusBadge(session.status)">{{ statusLabel(session.status) }}</span>
+              </span>
+              <span class="session-row__times">
+                <span>Started: {{ formatTime(session.startTime) }}</span>
+                <span>Ended: {{ formatTime(session.endTime) }}</span>
+                <span>Duration: {{ duration(session) }}</span>
+              </span>
+              <span class="session-row__events">{{ eventLabel(session) }}</span>
+            </span>
+          </li>
+        }
+      </ul>
+
+      <!-- Expanded event list for the selected session -->
+      @if (expandedId != null && expandedEvents.length) {
+        <div class="events">
+          <h3 class="events__title">Events for Session #{{ expandedId }}</h3>
+          <ul class="events__list">
+            @for (event of expandedEvents; track event.eventId) {
+              <li class="events__item">
+                <span class="events__type">#{{ event.eventId }}</span>
+                <span class="events__desc">{{ eventEventLabel(event) }}</span>
+              </li>
+            }
+          </ul>
+        </div>
+      } @else if (expandedId != null && expandedLoading) {
+        <p class="list__empty">Loading events&hellip;</p>
+      }
+    }
+  }
+</section>

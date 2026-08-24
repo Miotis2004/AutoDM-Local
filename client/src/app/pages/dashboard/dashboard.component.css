@@ -1,0 +1,123 @@
+/* Dashboard page styles. Shared page/card classes live in the global styles.css. */
+
+.page__intro {
+  margin: 0 0 1.5rem;
+  color: #4b5563;
+}
+
+.page__error {
+  margin: 0 0 1.5rem;
+  color: #b91c1c;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+}
+
+.section__title {
+  margin: 1.75rem 0 0.75rem;
+  font-size: 1.15rem;
+  font-weight: 650;
+}
+
+.card__status {
+  margin: 0 0 0.35rem;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #6b7280;
+  font-weight: 600;
+}
+
+.card__meta {
+  margin: 0.15rem 0;
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.card__place {
+  margin: 0 0 0.25rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.card__empty {
+  margin: 0;
+  font-style: italic;
+  color: #9ca3af;
+}
+
+/* Event / quest list */
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.list__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.6rem 0.9rem;
+  border-radius: 0.5rem;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+}
+
+.list__title {
+  font-weight: 600;
+}
+
+.list__meta {
+  font-size: 0.8rem;
+  color: #6b7280;
+  white-space: nowrap;
+}
+
+.list__badge {
+  font-size: 0.7rem;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: #eef2ff;
+  color: #3730a3;
+}
+
+.list__badge--completed {
+  background: #ecfdf5;
+  color: #065f46;
+}
+
+.list__badge--failed {
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+/* Setup progress next steps */
+.card__intro {
+  margin: 0 0 0.75rem;
+  color: #4b5563;
+}
+
+.list__link {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #2563eb;
+  text-decoration: none;
+  padding: 0.25rem 0.6rem;
+  border: 1px solid #2563eb;
+  border-radius: 0.5rem;
+  background: #ffffff;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.list__link:hover {
+  background: #2563eb;
+  color: #ffffff;
+}

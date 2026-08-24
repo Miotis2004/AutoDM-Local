@@ -1,0 +1,18 @@
+# Node / Angular
+node_modules/
+dist/
+tmp/
+out-tsc/
+*.log
+
+# Maven / Spring Boot
+target/
+*.log
+
+# Local SQLite database file (runtime artifact)
+*.db
+
+# Editor / OS
+.idea/
+.vscode/
+.DS_Store

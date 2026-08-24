@@ -1,0 +1,175 @@
+<section class="page" aria-label="Inventory">
+  <h1 class="page__title">Inventory</h1>
+  <p class="page__intro">
+    Manage the items the party carries. Add holdings to the campaign stash or to a character, edit
+    quantities and values, and remove holdings that are lost or spent.
+  </p>
+
+  @if (!this.hasCampaign) {
+    <p class="list__prompt">Select a campaign to manage its inventory.</p>
+  } @else {
+    @if (error) {
+      <div class="banner banner--error" role="alert">{{ error }}</div>
+    }
+
+    <section class="create" aria-labelledby="create-title">
+      <h2 id="create-title" class="create__title">Add an item</h2>
+      <form class="create__form" [formGroup]="createForm" (ngSubmit)="createItem()">
+        <div class="form__grid">
+          <div class="form__row">
+            <label class="form__label" for="create-name-input">Name <span class="form__required">*</span></label>
+            <input id="create-name-input" class="form__input" type="text" formControlName="name" placeholder="Longsword" maxlength="150" />
+            @if (createForm.get('name')?.dirty && getError('name')) {
+              <span class="form__invalid">{{ getError('name') }}</span>
+            }
+          </div>
+          <div class="form__row">
+            <label class="form__label" for="create-category-input">Category</label>
+            <select id="create-category-input" class="form__select" formControlName="category">
+              @for (category of categoryOptions; track category) {
+                <option [value]="category">{{ category }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <div class="form__grid">
+          <div class="form__row">
+            <label class="form__label" for="create-quantity-input">Quantity <span class="form__required">*</span></label>
+            <input id="create-quantity-input" class="form__input" type="number" step="1" formControlName="quantity" />
+            @if (createForm.get('quantity')?.dirty && getError('quantity')) {
+              <span class="form__invalid">{{ getError('quantity') }}</span>
+            }
+          </div>
+          <div class="form__row">
+            <label class="form__label" for="create-value-input">Value</label>
+            <input id="create-value-input" class="form__input" type="number" step="any" formControlName="value" placeholder="Optional" />
+          </div>
+        </div>
+
+        <div class="form__row">
+          <label class="form__label" for="create-description-input">Description</label>
+          <textarea id="create-description-input" class="form__textarea" formControlName="description" rows="2" placeholder="Optional description"></textarea>
+        </div>
+
+        <div class="form__grid">
+          <div class="form__row">
+            <label class="form__label" for="create-owner-kind-input">Owned by</label>
+            <select id="create-owner-kind-input" class="form__select" formControlName="ownerKind">
+              @for (option of ownerOptions; track option.kind) {
+                <option [value]="option.kind">{{ option.label }}</option>
+              }
+            </select>
+          </div>
+          @if (createForm.get('ownerKind')?.value === 'PLAYER') {
+            <div class="form__row">
+              <label class="form__label" for="create-owner-input">Character</label>
+              <select id="create-owner-input" class="form__select" formControlName="ownerId">
+                <option value="">-- select a character --</option>
+                @for (character of characters; track character.id) {
+                  <option [value]="character.id">{{ character.name }}</option>
+                }
+              </select>
+            </div>
+          } @else {
+            <div class="form__row">
+              <span class="form__hint">Items are stored in the campaign stash.</span>
+            </div>
+          }
+        </div>
+
+        <button class="btn btn--primary" type="submit" [disabled]="submitting">Add item</button>
+      </form>
+    </section>
+
+    <section aria-labelledby="list-title">
+      <h2 id="list-title" class="list__title">
+        Holdings
+        @if (itemList.length) {
+          <span class="list__count">{{ itemList.length }}</span>
+        }
+      </h2>
+
+      @if (loading) {
+        <p class="list__empty">Loading inventory&hellip;</p>
+      } @else if (!itemList.length) {
+        <p class="list__empty">No items yet. Add your first item above to get started.</p>
+      } @else {
+        <div class="card-grid">
+          @for (item of itemList; track item.id) {
+            @if (editingId === item.id) {
+              <article class="card card--editing" aria-label="Editing {{ item.name }}">
+                <form class="edit" (ngSubmit)="saveEdit()">
+                  <h3 class="edit__title">Edit {{ item.name }}</h3>
+                  <div class="edit__fields">
+                    <label class="form__row">
+                      <span class="form__label">Name</span>
+                      <input class="form__input" type="text" [formControl]="field('name')" />
+                    </label>
+                    <label class="form__row">
+                      <span class="form__label">Category</span>
+                      <select class="form__select" [formControl]="field('category')">
+                        @for (category of categoryOptions; track category) {
+                          <option [value]="category">{{ category }}</option>
+                        }
+                      </select>
+                    </label>
+                    <label class="form__row">
+                      <span class="form__label">Quantity</span>
+                      <input class="form__input" type="number" step="1" [formControl]="field('quantity')" />
+                    </label>
+                    <label class="form__row">
+                      <span class="form__label">Value</span>
+                      <input class="form__input" type="number" step="any" [formControl]="field('value')" placeholder="Optional" />
+                    </label>
+                  </div>
+                  @if (field('name').dirty && getError('name')) {
+                    <span class="form__invalid">{{ getError('name') }}</span>
+                  }
+                  <div class="edit__actions">
+                    <button class="btn btn--sm btn--primary" type="submit" [disabled]="submitting">Save</button>
+                    <button class="btn btn--sm btn--ghost" type="button" (click)="cancelEdit()">Cancel</button>
+                  </div>
+                </form>
+              </article>
+            } @else {
+              <article class="card" aria-label="Item {{ item.name }}">
+                <div class="card__head">
+                  <h2 class="card__title">{{ item.name }}</h2>
+                  <span class="badge badge--neutral">{{ item.category }}</span>
+                </div>
+                <ul class="card__meta">
+                  <li><span class="card__meta-label">Qty</span> {{ item.quantity }}</li>
+                  <li><span class="card__meta-label">Value</span> {{ item.value }}</li>
+                  <li><span class="card__meta-label">Owned by</span> {{ ownerLabel(item) }}</li>
+                </ul>
+                @if (item.equipped) {
+                  <span class="badge badge--friendly">Equipped</span>
+                }
+                @if (item.description) {
+                  <p class="card__desc">{{ item.description }}</p>
+                }
+                <ul class="card__actions">
+                  <li><button class="btn btn--sm btn--ghost" type="button" (click)="openEdit(item)">Edit</button></li>
+                  <li><button class="btn btn--sm btn--danger" type="button" (click)="confirmDelete(item.id)">Remove</button></li>
+                </ul>
+              </article>
+            }
+          }
+        </div>
+      }
+    </section>
+  }
+</section>
+
+@if (deletingId !== null) {
+  <div class="modal__scrim" role="presentation" (click)="cancelDelete()"></div>
+  <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <h2 id="modal-title" class="modal__title">Remove item</h2>
+    <p class="modal__body">This permanently removes the holding from the campaign inventory. This cannot be undone.</p>
+    <div class="modal__actions">
+      <button class="btn btn--sm btn--ghost" type="button" (click)="cancelDelete()">Cancel</button>
+      <button class="btn btn--sm btn--danger" type="button" (click)="deleteItem()" [disabled]="submitting">Remove</button>
+    </div>
+  </section>
+}

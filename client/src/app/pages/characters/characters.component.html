@@ -1,0 +1,177 @@
+<section class="page" aria-label="Characters">
+  <h1 class="page__title">Characters</h1>
+  <p class="page__intro">
+    Manage the player characters in your campaign. Create a new character, edit its identity, or
+    remove one from the roster.
+  </p>
+
+  @if (!this.hasCampaign) {
+    <p class="list__prompt">
+      Select a campaign to manage its characters.
+    </p>
+  } @else {
+    @if (error) {
+      <div class="banner banner--error" role="alert">{{ error }}</div>
+    }
+
+    <!-- Create a new character -->
+    <section class="create" aria-labelledby="create-title">
+      <h2 id="create-title" class="create__title">Create a character</h2>
+      <form class="create__form" [formGroup]="createForm" (ngSubmit)="createCharacter()">
+        <div class="form__row">
+          <label class="form__label" for="create-name-input">Name <span class="form__required">*</span></label>
+          <input
+            id="create-name-input"
+            class="form__input"
+            type="text"
+            formControlName="name"
+            placeholder="Aragorn"
+            maxlength="120"
+          />
+          @if (createForm.get('name')?.dirty && getError('name')) {
+            <span class="form__invalid">{{ getError('name') }}</span>
+          }
+        </div>
+
+        <div class="form__grid">
+          <div class="form__row">
+            <label class="form__label" for="create-ancestry-input">Ancestry</label>
+            <input id="create-ancestry-input" class="form__input" type="text" formControlName="ancestry" placeholder="Human" />
+          </div>
+          <div class="form__row">
+            <label class="form__label" for="create-class-input">Class</label>
+            <input id="create-class-input" class="form__input" type="text" formControlName="characterClass" placeholder="Fighter" />
+          </div>
+        </div>
+
+        <div class="form__grid">
+          <div class="form__row">
+            <label class="form__label" for="create-level-input">Level <span class="form__required">*</span></label>
+            <input id="create-level-input" class="form__input" type="number" formControlName="level" min="1" max="20" />
+            @if (createForm.get('level')?.dirty && getError('level')) {
+              <span class="form__invalid">{{ getError('level') }}</span>
+            }
+          </div>
+          <div class="form__row">
+            <label class="form__label" for="create-alignment-input">Alignment</label>
+            <input id="create-alignment-input" class="form__input" type="text" formControlName="alignment" placeholder="Lawful good" />
+          </div>
+        </div>
+
+        <div class="form__row">
+          <label class="form__label" for="create-background-input">Background</label>
+          <input id="create-background-input" class="form__input" type="text" formControlName="background" placeholder="Soldier" />
+        </div>
+
+        <button class="btn btn--primary" type="submit" [disabled]="submitting">Create character</button>
+      </form>
+    </section>
+
+    <!-- Character list -->
+    <section aria-labelledby="list-title">
+      <h2 id="list-title" class="list__title">
+        Roster
+        @if (characterList.length) {
+          <span class="list__count">{{ characterList.length }}</span>
+        }
+      </h2>
+
+      @if (loading) {
+        <p class="list__empty">Loading characters&hellip;</p>
+      } @else if (!characterList.length) {
+        <p class="list__empty">
+          No characters yet. Create your first character above to get started.
+        </p>
+      } @else {
+        <div class="card-grid">
+          @for (character of characterList; track character.id) {
+            @if (editingId === character.id) {
+              <article class="card card--editing" aria-label="Editing {{ character.name }}">
+                <form class="edit" [formGroup]="editForm" (ngSubmit)="saveEdit(character)">
+                  <h2 class="edit__title">Edit character</h2>
+
+                  <div class="form__row">
+                    <label class="form__label" for="edit-name-input">Name <span class="form__required">*</span></label>
+                    <input id="edit-name-input" class="form__input" type="text" formControlName="name" maxlength="120" />
+                  </div>
+
+                  <div class="form__grid">
+                    <div class="form__row">
+                      <label class="form__label" for="edit-ancestry-input">Ancestry</label>
+                      <input id="edit-ancestry-input" class="form__input" type="text" formControlName="ancestry" />
+                    </div>
+                    <div class="form__row">
+                      <label class="form__label" for="edit-class-input">Class</label>
+                      <input id="edit-class-input" class="form__input" type="text" formControlName="characterClass" />
+                    </div>
+                  </div>
+
+                  <div class="form__grid">
+                    <div class="form__row">
+                      <label class="form__label" for="edit-level-input">Level</label>
+                      <input id="edit-level-input" class="form__input" type="number" formControlName="level" min="1" max="20" />
+                    </div>
+                    <div class="form__row">
+                      <label class="form__label" for="edit-alignment-input">Alignment</label>
+                      <input id="edit-alignment-input" class="form__input" type="text" formControlName="alignment" />
+                    </div>
+                  </div>
+
+                  <div class="form__row">
+                    <label class="form__label" for="edit-background-input">Background</label>
+                    <input id="edit-background-input" class="form__input" type="text" formControlName="background" />
+                  </div>
+
+                  <div class="edit__actions">
+                    <button class="btn btn--primary" type="submit" [disabled]="submitting">Save</button>
+                    <button class="btn btn--ghost" type="button" [disabled]="submitting" (click)="cancelEdit()">Cancel</button>
+                  </div>
+                </form>
+              </article>
+            } @else {
+              <article class="card" aria-label="Character {{ character.name }}">
+                <div class="card__head">
+                  <h2 class="card__title">{{ character.name }}</h2>
+                  <span class="badge">{{ levelText(character) }}</span>
+                </div>
+
+                @if (character.characterClass || character.ancestry) {
+                  <p class="card__desc">{{ identityLine([character.ancestry, character.characterClass]) }}</p>
+                }
+
+                <ul class="card__meta">
+                  <li><span class="card__meta-label">HP</span> {{ character.hitPoints }} / {{ character.maxHitPoints }}</li>
+                  <li><span class="card__meta-label">AC</span> {{ character.armorClass }}</li>
+                  @if (character.background) {
+                    <li><span class="card__meta-label">Background</span> {{ character.background }}</li>
+                  }
+                </ul>
+
+                <ul class="card__actions">
+                  <li><button class="btn btn--sm" type="button" [disabled]="submitting" (click)="startEdit(character)">Edit</button></li>
+                  <li><button class="btn btn--sm btn--danger" type="button" [disabled]="submitting" (click)="confirmDelete(character)">Delete</button></li>
+                </ul>
+              </article>
+            }
+          }
+        </div>
+      }
+    </section>
+  }
+
+  <!-- Destructive-action confirmation -->
+  @if (pendingDelete) {
+    <div class="modal__scrim" role="presentation" (click)="cancelDelete()"></div>
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <h2 id="modal-title" class="modal__title">Delete character</h2>
+      <p class="modal__body">
+        This permanently deletes "{{ pendingDelete.name }}" and cannot be undone. Are you sure you
+        want to continue?
+      </p>
+      <div class="modal__actions">
+        <button class="btn btn--ghost" type="button" [disabled]="submitting" (click)="cancelDelete()">Cancel</button>
+        <button class="btn btn--danger" type="button" [disabled]="submitting" (click)="executeDelete()">Delete</button>
+      </div>
+    </section>
+  }
+</section>

@@ -1,0 +1,115 @@
+<section class="page" aria-label="Settings">
+  <h1 class="page__title">Settings</h1>
+  <p class="page__intro">
+    Configure the application and your preferences. All settings are stored locally on this
+    device and are never sent over the network, so this screen works without internet
+    connectivity.
+  </p>
+
+  @if (savedMessage) {
+    <p class="save-notice" role="status">{{ savedMessage }}</p>
+  }
+
+  <!-- Storage -->
+  <article class="setting-card" aria-labelledby="storage-heading">
+    <header class="setting-card__head">
+      <h2 id="storage-heading" class="setting-card__title">Storage</h2>
+      <span class="badge badge--neutral">Local</span>
+    </header>
+    <p class="setting-card__desc">
+      The location where AutoDM keeps its local data. Change it to point at a different storage
+      path on this machine.
+    </p>
+
+    <div class="form__row">
+      <label class="form__label" for="storage-path">Storage path</label>
+      <input
+        id="storage-path"
+        class="form__input form__input--text"
+        type="text"
+        spellcheck="false"
+        placeholder="e.g. ${user.home}/autodm.db"
+        [(ngModel)]="storagePath"
+        (keyup.enter)="saveStoragePath()"
+      />
+      @if (!storagePath) {
+        <span class="form__hint">Leave blank to use the default local location.</span>
+      }
+    </div>
+
+    <div class="setting-card__actions">
+      <button type="button" class="btn btn--primary" (click)="saveStoragePath()">
+        Save storage path
+      </button>
+    </div>
+  </article>
+
+  <!-- Display -->
+  <article class="setting-card" aria-labelledby="display-heading">
+    <header class="setting-card__head">
+      <h2 id="display-heading" class="setting-card__title">Display</h2>
+      <span class="badge badge--neutral">Local</span>
+    </header>
+    <p class="setting-card__desc">
+      Adjust how the application looks. Changes are applied immediately and remembered next time.
+    </p>
+
+    <div class="form__grid">
+      <div class="form__row">
+        <label class="form__label" for="theme">Colour theme</label>
+        <select id="theme" class="form__select" [(ngModel)]="theme" (change)="onThemeChanged()">
+          <option value="system">System</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      <div class="form__row">
+        <label class="form__label" for="font-size">Text size</label>
+        <select id="font-size" class="form__select" [(ngModel)]="fontSize" (change)="onFontSizeChanged()">
+          <option value="small">Small</option>
+          <option value="medium">Medium</option>
+          <option value="large">Large</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form__row form__row--inline">
+      <label class="form__check">
+        <input type="checkbox" [(ngModel)]="compactMode" (change)="onCompactModeChanged()" />
+        <span>Compact mode (show more per screen)</span>
+      </label>
+    </div>
+  </article>
+
+  <!-- Summary -->
+  <article class="setting-card setting-card--summary" aria-labelledby="summary-heading">
+    <header class="setting-card__head">
+      <h2 id="summary-heading" class="setting-card__title">Summary</h2>
+    </header>
+    <ul class="setting-card__meta">
+      <li>
+        <span class="setting-card__meta-label">Storage path</span>
+        <span>{{ settings().storagePath || 'default (local)' }}</span>
+      </li>
+      <li>
+        <span class="setting-card__meta-label">Theme</span>
+        <span>{{ settings().theme }}</span>
+      </li>
+      <li>
+        <span class="setting-card__meta-label">Text size</span>
+        <span>{{ settings().fontSize }}</span>
+      </li>
+      <li>
+        <span class="setting-card__meta-label">Compact mode</span>
+        <span>{{ settings().compactMode ? 'On' : 'Off' }}</span>
+      </li>
+    </ul>
+
+    <div class="setting-card__actions">
+      <button type="button" class="btn btn--ghost" (click)="resetDefaults()">
+        Restore defaults
+      </button>
+    </div>
+  </article>
+</section>

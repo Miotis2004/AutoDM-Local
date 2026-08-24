@@ -1,0 +1,21 @@
+<div class="toasts" role="status" aria-live="polite">
+  @for (item of items; track item.id) {
+    <div
+      class="toast"
+      [class.toast--error]="item.level === 'error'"
+      [class.toast--info]="item.level === 'info'"
+      role="alert"
+    >
+      <span class="toast__icon" aria-hidden="true">{{ item.level === 'error' ? '!' : 'i' }}</span>
+      <span class="toast__message">{{ item.message }}</span>
+      <button
+        type="button"
+        class="toast__close"
+        aria-label="Dismiss"
+        (click)="close(item.id)"
+      >
+        ×
+      </button>
+    </div>
+  }
+</div>

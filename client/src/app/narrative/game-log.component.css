@@ -1,0 +1,115 @@
+.game-log {
+  max-width: 60rem;
+  margin: 1.5rem auto;
+  padding: 1.25rem;
+  border: 1px solid #2a2f3a;
+  border-radius: 0.5rem;
+  background: #12141a;
+  color: #e6e9ef;
+  font-family: system-ui, sans-serif;
+}
+
+.game-log__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.game-log__clear {
+  background: #2a2f3a;
+  color: #e6e9ef;
+  border: 1px solid #3a4150;
+  border-radius: 0.35rem;
+  padding: 0.35rem 0.75rem;
+  cursor: pointer;
+}
+
+.game-log__controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+
+.game-log__controls label {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #9aa3b2;
+}
+
+.game-log__controls select,
+.game-log__dice {
+  background: #1a1d25;
+  color: #e6e9ef;
+  border: 1px solid #3a4150;
+  border-radius: 0.35rem;
+  padding: 0.4rem 0.5rem;
+}
+
+.game-log__render,
+.game-log__roll {
+  background: #3f6ac4;
+  color: #fff;
+  border: none;
+  border-radius: 0.35rem;
+  padding: 0.45rem 0.85rem;
+  cursor: pointer;
+}
+
+.game-log__divider {
+  color: #5a6372;
+}
+
+.game-log__entries {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.entry {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 0.4rem;
+  background: #1a1d25;
+  border-left: 3px solid #5a6372;
+}
+
+.entry--DM_NARRATION { border-left-color: #b27ae4; }
+.entry--PLAYER_ACTION { border-left-color: #4aa3ff; }
+.entry--DICE_RESULT { border-left-color: #f0a83f; }
+.entry--COMBAT_EVENT { border-left-color: #e0554f; }
+.entry--SYSTEM_EVENT { border-left-color: #4fd18a; }
+
+.entry__tag {
+  flex: 0 0 auto;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #9aa3b2;
+}
+
+.entry__title {
+  flex: 0 0 auto;
+  font-weight: 600;
+  color: #cdd4e0;
+}
+
+.entry__message {
+  flex: 1 1 auto;
+  color: #e6e9ef;
+}
+
+.game-log__empty {
+  color: #7a8394;
+  font-style: italic;
+  padding: 0.75rem;
+}

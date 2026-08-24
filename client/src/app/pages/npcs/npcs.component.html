@@ -1,0 +1,158 @@
+<section class="page" aria-label="NPCs">
+  <h1 class="page__title">NPCs</h1>
+  <p class="page__intro">
+    Manage the non-player characters your party meets. Create an NPC, edit its story fields, toggle
+    whether it is on stage, or remove it.
+  </p>
+
+  @if (!this.hasCampaign) {
+    <p class="list__prompt">Select a campaign to manage its NPCs.</p>
+  } @else {
+    @if (error) {
+      <div class="banner banner--error" role="alert">{{ error }}</div>
+    }
+
+    <section class="create" aria-labelledby="create-title">
+      <h2 id="create-title" class="create__title">Create an NPC</h2>
+      <form class="create__form" [formGroup]="createForm" (ngSubmit)="createNpc()">
+        <div class="form__row">
+          <label class="form__label" for="create-name-input">Name <span class="form__required">*</span></label>
+          <input id="create-name-input" class="form__input" type="text" formControlName="name" placeholder="Brother Corvius" maxlength="120" />
+          @if (createForm.get('name')?.dirty && getError('name')) {
+            <span class="form__invalid">{{ getError('name') }}</span>
+          }
+        </div>
+
+        <div class="form__grid">
+          <div class="form__row">
+            <label class="form__label" for="create-role-input">Role</label>
+            <input id="create-role-input" class="form__input" type="text" formControlName="role" placeholder="Priest" />
+          </div>
+          <div class="form__row">
+            <label class="form__label" for="create-disposition-input">Disposition</label>
+            <select id="create-disposition-input" class="form__select" formControlName="disposition">
+              @for (d of dispositions; track d) {
+                <option [value]="d">{{ d }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <div class="form__grid">
+          <div class="form__row">
+            <label class="form__label" for="create-faction-input">Faction</label>
+            <input id="create-faction-input" class="form__input" type="text" formControlName="faction" placeholder="Order of the Brightness" />
+          </div>
+          <div class="form__row">
+            <label class="form__label" for="create-notes-input">Notes</label>
+            <input id="create-notes-input" class="form__input" type="text" formControlName="notes" placeholder="Optional notes" />
+          </div>
+        </div>
+
+        <div class="form__row">
+          <label class="form__label" for="create-description-input">Description</label>
+          <textarea id="create-description-input" class="form__textarea" formControlName="description" rows="3" placeholder="A brief description of the NPC"></textarea>
+        </div>
+
+        <button class="btn btn--primary" type="submit" [disabled]="submitting">Create NPC</button>
+      </form>
+    </section>
+
+    <section aria-labelledby="list-title">
+      <h2 id="list-title" class="list__title">
+        Non-player characters
+        @if (npcList.length) {
+          <span class="list__count">{{ npcList.length }}</span>
+        }
+      </h2>
+
+      @if (loading) {
+        <p class="list__empty">Loading NPCs&hellip;</p>
+      } @else if (!npcList.length) {
+        <p class="list__empty">No NPCs yet. Create your first NPC above to get started.</p>
+      } @else {
+        <div class="card-grid">
+          @for (npc of npcList; track npc.id) {
+            @if (editingId === npc.id) {
+              <article class="card card--editing" aria-label="Editing {{ npc.name }}">
+                <form class="edit" [formGroup]="editForm" (ngSubmit)="saveEdit(npc)">
+                  <h2 class="edit__title">Edit NPC</h2>
+
+                  <div class="form__row">
+                    <label class="form__label" for="edit-name-input">Name <span class="form__required">*</span></label>
+                    <input id="edit-name-input" class="form__input" type="text" formControlName="name" maxlength="120" />
+                  </div>
+
+                  <div class="form__grid">
+                    <div class="form__row">
+                      <label class="form__label" for="edit-role-input">Role</label>
+                      <input id="edit-role-input" class="form__input" type="text" formControlName="role" />
+                    </div>
+                    <div class="form__row">
+                      <label class="form__label" for="edit-disposition-input">Disposition</label>
+                      <select id="edit-disposition-input" class="form__select" formControlName="disposition">
+                        @for (d of dispositions; track d) {
+                          <option [value]="d">{{ d }}</option>
+                        }
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="form__row">
+                    <label class="form__label" for="edit-faction-input">Faction</label>
+                    <input id="edit-faction-input" class="form__input" type="text" formControlName="faction" />
+                  </div>
+
+                  <div class="edit__actions">
+                    <button class="btn btn--primary" type="submit" [disabled]="submitting">Save</button>
+                    <button class="btn btn--ghost" type="button" [disabled]="submitting" (click)="cancelEdit()">Cancel</button>
+                  </div>
+                </form>
+              </article>
+            } @else {
+              <article class="card" aria-label="NPC {{ npc.name }}">
+                <div class="card__head">
+                  <h2 class="card__title">{{ npc.name }}</h2>
+                  @if (npc.active) {
+                    <span class="badge badge--friendly">Active</span>
+                  } @else {
+                    <span class="badge badge--neutral">Inactive</span>
+                  }
+                </div>
+
+                @if (npc.role || npc.disposition) {
+                  <p class="card__desc">{{ identityLine([npc.role, npc.disposition]) }}</p>
+                }
+
+                @if (npc.description) {
+                  <p class="card__desc">{{ npc.description }}</p>
+                }
+
+                <ul class="card__actions">
+                  <li><button class="btn btn--sm" type="button" [disabled]="submitting" (click)="startEdit(npc)">Edit</button></li>
+                  <li><button class="btn btn--sm btn--ghost" type="button" [disabled]="submitting" (click)="toggleActive(npc)">Toggle active</button></li>
+                  <li><button class="btn btn--sm btn--danger" type="button" [disabled]="submitting" (click)="confirmDelete(npc)">Delete</button></li>
+                </ul>
+              </article>
+            }
+          }
+        </div>
+      }
+    </section>
+  }
+
+  @if (pendingDelete) {
+    <div class="modal__scrim" role="presentation" (click)="cancelDelete()"></div>
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <h2 id="modal-title" class="modal__title">Delete NPC</h2>
+      <p class="modal__body">
+        This permanently deletes "{{ pendingDelete.name }}" and cannot be undone. Are you sure you
+        want to continue?
+      </p>
+      <div class="modal__actions">
+        <button class="btn btn--ghost" type="button" [disabled]="submitting" (click)="cancelDelete()">Cancel</button>
+        <button class="btn btn--danger" type="button" [disabled]="submitting" (click)="executeDelete()">Delete</button>
+      </div>
+    </section>
+  }
+</section>

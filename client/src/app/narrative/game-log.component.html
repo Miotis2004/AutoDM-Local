@@ -1,0 +1,44 @@
+<section class="game-log" aria-label="Game log">
+  <header class="game-log__header">
+    <h1>Game Log</h1>
+    <button type="button" class="game-log__clear" (click)="clearLog()">Clear</button>
+  </header>
+
+  <section class="game-log__controls" aria-label="Render a log line">
+    <label>
+      Category
+      <select [(ngModel)]="selected">
+        <option *ngFor="let category of categories" [value]="category">
+          {{ categoryLabels[category] }}
+        </option>
+      </select>
+    </label>
+
+    <button type="button" class="game-log__render" (click)="renderSelected()">
+      Render {{ categoryLabels[selected()] }}
+    </button>
+
+    <span class="game-log__divider">|</span>
+
+    <label>
+      Die
+      <input type="number" min="4" max="100" [(ngModel)]="rollSides" class="game-log__dice" />
+    </label>
+    <label>
+      Modifier
+      <input type="number" [(ngModel)]="rollModifier" class="game-log__dice" />
+    </label>
+    <button type="button" class="game-log__roll" (click)="rollDice()">Roll &amp; log</button>
+  </section>
+
+  <ul class="game-log__entries">
+    <li *ngFor="let entry of entries()" class="entry" [class]="'entry--' + entry.category">
+      <span class="entry__tag">{{ categoryLabels[entry.category] }}</span>
+      <span class="entry__title">{{ entry.title }}</span>
+      <span class="entry__message">{{ entry.message }}</span>
+    </li>
+    <li *ngIf="entries().length === 0" class="game-log__empty">
+      The log is empty. Render a line above to begin.
+    </li>
+  </ul>
+</section>

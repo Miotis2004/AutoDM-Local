@@ -1,0 +1,175 @@
+<section class="page" aria-label="Dashboard">
+  <h1 class="page__title">Dashboard</h1>
+
+  <!-- Loading -->
+  @if (loading) {
+    <p class="page__intro">Loading the current campaign&hellip;</p>
+  }
+
+  <!-- Error -->
+  @else if (error) {
+    <p class="page__error" role="alert">{{ error }}</p>
+  }
+
+  <!-- No campaign active anywhere: invite the visitor to open or start one -->
+  @else if (!state) {
+    <p class="page__intro">Welcome to AutoDM. Pick a place to continue your campaign.</p>
+    <div class="card-grid">
+      <a class="card" routerLink="/campaigns">
+        <h2>Campaigns</h2>
+        <p>Open an existing campaign or start a new one.</p>
+      </a>
+      <a class="card" routerLink="/play">
+        <h2>Play</h2>
+        <p>Drive the current scene with the Dungeon Master engine.</p>
+      </a>
+    </div>
+  }
+
+  <!-- Active campaign summary -->
+  @else if (state) {
+    <p class="page__intro">{{ state.summary || 'No campaign activity recorded yet.' }}</p>
+
+    <div class="card-grid">
+      <article class="card">
+        <h2>{{ state.campaign.title }}</h2>
+        <p class="card__status">Status: {{ state.campaign.status }}</p>
+        @if (state.campaign.description) {
+          <p>{{ state.campaign.description }}</p>
+        }
+        <p class="card__meta">
+          @if (state.campaign.lastPlayedAt) {
+            Last played: {{ state.campaign.lastPlayedAt }} &middot;
+          }
+          Created: {{ state.campaign.createdAt ?? 'unknown' }}
+        </p>
+      </article>
+
+      <article class="card">
+        <h2>Location</h2>
+        @if (state.location) {
+          <p class="card__place">{{ state.location }}</p>
+        } @else {
+          <p class="card__empty">No location set yet.</p>
+        }
+      </article>
+
+      <article class="card">
+        <h2>Encounter</h2>
+        @if (state.encounter) {
+          <p class="card__place">{{ state.encounter.name }}</p>
+          <p class="card__status">Status: {{ state.encounter.status }}</p>
+        } @else {
+          <p class="card__empty">No encounter in progress.</p>
+        }
+      </article>
+    </div>
+
+    <!-- Setup progress: how far the campaign has moved through the end-to-end setup workflow -->
+    @if (state.setupProgress) {
+      <h2 class="section__title">Setup Progress</h2>
+      @if (isSetupComplete) {
+        <p class="page__intro">The campaign is set up end to end: party, world, NPCs, quests, and inventory are all in place.</p>
+      } @else {
+        <p class="page__intro">Setup {{ setupCompleteCount }} of 5 steps complete.</p>
+        <ul class="list">
+          @for (step of state.setupProgress.nextSteps; track step.route) {
+            <li class="list__item">
+              <span class="list__title">{{ step.label }}</span>
+              <a class="list__link" [routerLink]="nextRoute(step)">Go</a>
+            </li>
+          }
+        </ul>
+      }
+    }
+
+    <!-- Active characters -->
+    <h2 class="section__title">Active Characters</h2>
+    @if (state.characters.length) {
+      <div class="card-grid">
+        @for (character of state.characters; track character.id) {
+          <article class="card">
+            <h2>{{ character.name }}</h2>
+            <p class="card__meta">
+              {{ character.characterClass ?? 'Adventurer' }} &middot; Level {{ character.level }}
+            </p>
+            <p class="card__meta">
+              HP {{ character.hitPoints }} / {{ character.maxHitPoints }}
+            </p>
+          </article>
+        }
+      </div>
+    } @else {
+      <p class="card__empty">No characters in the party yet.</p>
+    }
+
+    <!-- Current quests -->
+    <h2 class="section__title">Current Quests</h2>
+    @if (state.quests.length) {
+      <ul class="list">
+        @for (quest of state.quests; track quest.id) {
+          <li class="list__item">
+            <span class="list__title">{{ quest.title }}</span>
+            <span class="list__badge list__badge--{{ quest.status | lowercase }}">{{ quest.status }}</span>
+          </li>
+        }
+      </ul>
+    } @else {
+      <p class="card__empty">No quests to track yet.</p>
+    }
+
+    <!-- Recent events -->
+    <h2 class="section__title">Recent Events</h2>
+    @if (state.events.length) {
+      <ul class="list">
+        @for (event of state.events; track event.id) {
+          <li class="list__item">
+            <span class="list__title">{{ event.description || event.eventType }}</span>
+            <span class="list__meta">
+              {{ event.eventType }} &middot; {{ event.timestamp | date: 'short' }}
+            </span>
+          </li>
+        }
+      </ul>
+    } @else {
+      <p class="card__empty">No events recorded yet.</p>
+    }
+
+    <!-- Quick entry -->
+    <h2 class="section__title">Quick Entry</h2>
+    <div class="card-grid">
+      <a class="card" routerLink="/play">
+        <h2>Play</h2>
+        <p>Drive the current scene with the Dungeon Master engine.</p>
+      </a>
+      <a class="card" routerLink="/sessions">
+        <h2>Sessions</h2>
+        <p>Start, resume, and end play sessions and review their history.</p>
+      </a>
+      <a class="card" routerLink="/characters">
+        <h2>Characters</h2>
+        <p>Manage your party of player characters.</p>
+      </a>
+      <a class="card" routerLink="/quests">
+        <h2>Quests</h2>
+        <p>Track the strands of campaign story.</p>
+      </a>
+      <a class="card" routerLink="/encounters">
+        <h2>Encounters</h2>
+        <p>Combat encounters and turn order.</p>
+      </a>
+      <a class="card" routerLink="/world">
+        <h2>World</h2>
+        <p>Explore locations, regions, and points of interest.</p>
+      </a>
+      <a class="card" routerLink="/npcs">
+        <h2>NPCs</h2>
+        <p>Non-player characters of the world.</p>
+      </a>
+      <a class="card" routerLink="/history">
+        <h2>History</h2>
+        <p>The recorded events of your campaign.</p>
+      </a>
+    </div>
+  }
+</section>

@@ -1,0 +1,167 @@
+<section class="page" aria-label="Quests">
+  <h1 class="page__title">Quests</h1>
+  <p class="page__intro">
+    Track the campaign's quests. Create a new quest, edit its details and status, or mark one
+    complete or failed.
+  </p>
+
+  @if (!this.hasCampaign) {
+    <p class="list__prompt">Select a campaign to manage its quests.</p>
+  } @else {
+    @if (error) {
+      <div class="banner banner--error" role="alert">{{ error }}</div>
+    }
+
+    <section class="create" aria-labelledby="create-title">
+      <h2 id="create-title" class="create__title">Create a quest</h2>
+      <form class="create__form" [formGroup]="createForm" (ngSubmit)="createQuest()">
+        <div class="form__row">
+          <label class="form__label" for="create-title-input">Title <span class="form__required">*</span></label>
+          <input id="create-title-input" class="form__input" type="text" formControlName="title" placeholder="The Lost Relic" maxlength="200" />
+          @if (createForm.get('title')?.dirty && getError('title')) {
+            <span class="form__invalid">{{ getError('title') }}</span>
+          }
+        </div>
+
+        <div class="form__row">
+          <label class="form__label" for="create-description-input">Description</label>
+          <textarea id="create-description-input" class="form__textarea" formControlName="description" rows="3" placeholder="A brief synopsis of the quest"></textarea>
+        </div>
+
+        <div class="form__grid">
+          <div class="form__row">
+            <label class="form__label" for="create-giver-input">Giver</label>
+            <input id="create-giver-input" class="form__input" type="text" formControlName="giver" placeholder="Quest giver" />
+          </div>
+          <div class="form__row">
+            <label class="form__label" for="create-rewards-input">Rewards</label>
+            <input id="create-rewards-input" class="form__input" type="text" formControlName="rewards" placeholder="Gold, reputation" />
+          </div>
+        </div>
+
+        <div class="form__row">
+          <label class="form__label" for="create-notes-input">Notes</label>
+          <input id="create-notes-input" class="form__input" type="text" formControlName="notes" placeholder="Optional setup notes" />
+        </div>
+
+        <button class="btn btn--primary" type="submit" [disabled]="submitting">Create quest</button>
+      </form>
+    </section>
+
+    <section aria-labelledby="list-title">
+      <h2 id="list-title" class="list__title">
+        Quests
+        @if (questList.length) {
+          <span class="list__count">{{ questList.length }}</span>
+        }
+      </h2>
+
+      @if (loading) {
+        <p class="list__empty">Loading quests&hellip;</p>
+      } @else if (!questList.length) {
+        <p class="list__empty">No quests yet. Create your first quest above to get started.</p>
+      } @else {
+        <div class="card-grid">
+          @for (quest of questList; track quest.id) {
+            @if (editingId === quest.id) {
+              <article class="card card--editing" aria-label="Editing {{ quest.title }}">
+                <form class="edit" [formGroup]="editForm" (ngSubmit)="saveEdit(quest)">
+                  <h2 class="edit__title">Edit quest</h2>
+
+                  <div class="form__row">
+                    <label class="form__label" for="edit-title-input">Title <span class="form__required">*</span></label>
+                    <input id="edit-title-input" class="form__input" type="text" formControlName="title" maxlength="200" />
+                  </div>
+
+                  <div class="form__row">
+                    <label class="form__label" for="edit-description-input">Description</label>
+                    <textarea id="edit-description-input" class="form__textarea" formControlName="description" rows="3"></textarea>
+                  </div>
+
+                  <div class="form__grid">
+                    <div class="form__row">
+                      <label class="form__label" for="edit-giver-input">Giver</label>
+                      <input id="edit-giver-input" class="form__input" type="text" formControlName="giver" />
+                    </div>
+                    <div class="form__row">
+                      <label class="form__label" for="edit-rewards-input">Rewards</label>
+                      <input id="edit-rewards-input" class="form__input" type="text" formControlName="rewards" />
+                    </div>
+                  </div>
+
+                  <div class="form__row">
+                    <label class="form__label" for="edit-status-input">Status</label>
+                    <select id="edit-status-input" class="form__select" formControlName="status">
+                      @for (s of statuses; track s) {
+                        <option [value]="s">{{ s }}</option>
+                      }
+                    </select>
+                  </div>
+
+                  <div class="edit__actions">
+                    <button class="btn btn--primary" type="submit" [disabled]="submitting">Save</button>
+                    <button class="btn btn--ghost" type="button" [disabled]="submitting" (click)="cancelEdit()">Cancel</button>
+                  </div>
+                </form>
+              </article>
+            } @else {
+              <article class="card" aria-label="Quest {{ quest.title }}">
+                <div class="card__head">
+                  <h2 class="card__title">{{ quest.title }}</h2>
+                  @if (quest.status === 'COMPLETED') {
+                    <span class="badge badge--completed">{{ quest.status }}</span>
+                  } @else if (quest.status === 'FAILED') {
+                    <span class="badge badge--failed">{{ quest.status }}</span>
+                  } @else {
+                    <span class="badge badge--neutral">{{ quest.status }}</span>
+                  }
+                </div>
+
+                @if (quest.description) {
+                  <p class="card__desc">{{ quest.description }}</p>
+                }
+
+                @if (quest.giver || quest.rewards) {
+                  <ul class="card__meta">
+                    @if (quest.giver) {
+                      <li><span class="card__meta-label">Giver</span> {{ quest.giver }}</li>
+                    }
+                    @if (quest.rewards) {
+                      <li><span class="card__meta-label">Rewards</span> {{ quest.rewards }}</li>
+                    }
+                  </ul>
+                }
+
+                <ul class="card__actions">
+                  @if (quest.status !== 'COMPLETED' && quest.status !== 'FAILED') {
+                    <li><button class="btn btn--sm btn--ghost" type="button" [disabled]="submitting" (click)="complete(quest)">Complete</button></li>
+                  }
+                  @if (quest.status !== 'FAILED' && quest.status !== 'COMPLETED') {
+                    <li><button class="btn btn--sm btn--warn" type="button" [disabled]="submitting" (click)="fail(quest)">Fail</button></li>
+                  }
+                  <li><button class="btn btn--sm" type="button" [disabled]="submitting" (click)="startEdit(quest)">Edit</button></li>
+                  <li><button class="btn btn--sm btn--danger" type="button" [disabled]="submitting" (click)="confirmDelete(quest)">Delete</button></li>
+                </ul>
+              </article>
+            }
+          }
+        </div>
+      }
+    </section>
+  }
+
+  @if (pendingDelete) {
+    <div class="modal__scrim" role="presentation" (click)="cancelDelete()"></div>
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <h2 id="modal-title" class="modal__title">Delete quest</h2>
+      <p class="modal__body">
+        This permanently deletes "{{ pendingDelete.title }}" and cannot be undone. Are you sure you
+        want to continue?
+      </p>
+      <div class="modal__actions">
+        <button class="btn btn--ghost" type="button" [disabled]="submitting" (click)="cancelDelete()">Cancel</button>
+        <button class="btn btn--danger" type="button" [disabled]="submitting" (click)="executeDelete()">Delete</button>
+      </div>
+    </section>
+  }
+</section>

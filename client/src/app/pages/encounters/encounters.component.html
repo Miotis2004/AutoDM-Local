@@ -1,0 +1,331 @@
+<section class="page" aria-label="Encounters">
+  <h1 class="page__title">Encounters</h1>
+  <p class="page__intro">
+    Start a combat encounter, progress the turns, and watch the fight unfold.
+  </p>
+
+  <!-- No campaign selected -->
+  @if (!campaignId) {
+    <p class="list__prompt">
+      Select a campaign from the campaigns screen to begin an encounter.
+    </p>
+  } @else {
+    @if (loading) {
+      <p class="list__empty">Loading encounters&hellip;</p>
+    } @else {
+    <div class="encounters">
+      <!-- Primary column: the active encounter board -->
+      <div class="encounters__main">
+        <!-- Encounter board: active or finished fight -->
+        @if (selected) {
+          <section class="board" aria-label="Encounter board">
+            <div class="board__head">
+              <h2 class="board__title">
+                {{ selected.name || 'Encounter' }}
+              </h2>
+              <span
+                class="badge"
+                [class.badge--primary]="isActive"
+                [class.badge--muted]="isFinished"
+              >
+                {{ statusLabel(selected.status) }}
+              </span>
+            </div>
+
+            @if (error) {
+              <div class="banner banner--error" role="alert">{{ error }}</div>
+            }
+
+            <!-- Turn header: turn order and current turn -->
+            <section class="turn" aria-label="Turn order">
+              <div class="turn__head">
+                <h3 class="turn__title">Turn order</h3>
+                @if (isActive) {
+                  <span class="turn__current">
+                    Current turn:
+                    <strong>{{ currentCombatant?.name ?? '—' }}</strong>
+                  </span>
+                }
+              </div>
+              @if (hasTurnOrder) {
+                <ol class="turn__list">
+                  @for (entry of turnOrder; track entry.id) {
+                    <li
+                      class="turn__entry"
+                      [class.turn__entry--now]="
+                        currentCombatant && currentCombatant.id === entry.id
+                      "
+                      [class.turn__entry--dead]="entry.defeated"
+                    >
+                      <span class="turn__position">{{ entry.order ?? '-' }}</span>
+                      <span class="turn__name">{{ entry.name }}</span>
+                      <span class="turn__side">{{ sideLabel(entry.kind) }}</span>
+                    </li>
+                  }
+                </ol>
+              } @else if (hasCombatants) {
+                <p class="turn__hint">Build the turn order to reveal initiative.</p>
+              } @else {
+                <p class="turn__hint">Add combatants to begin the fight.</p>
+              }
+            </section>
+
+            <!-- Combatants: heroes and enemies, with health -->
+            <div class="combatants">
+              <section class="column" aria-label="Heroes">
+                <h3 class="column__title">Heroes</h3>
+                @if (heroes.length === 0) {
+                  <p class="column__empty">No heroes yet.</p>
+                } @else {
+                  <ul class="combatant-list">
+                    @for (combatant of heroes; track combatant.id) {
+                      <li
+                        class="combatant"
+                        [class.combatant--defeated]="combatant.defeated"
+                        [class.combatant--low]="
+                          !combatant.defeated && hpPercent(combatant) <= 25
+                        "
+                      >
+                        <div class="combatant__head">
+                          <span class="combatant__name">{{ combatant.name }}</span>
+                          <span class="badge">{{ sideLabel(combatant.kind) }}</span>
+                        </div>
+                        <span
+                          class="hp-bar"
+                          role="img"
+                          aria-label="{{ combatant.name }} health {{ combatant.hitPoints }} of {{ combatant.maxHitPoints }}"
+                        >
+                          <span
+                            class="hp-bar__fill"
+                            [style.width.%]="hpPercent(combatant)"
+                          ></span>
+                        </span>
+                        <p class="combatant__hp">{{ healthLabel(combatant) }}</p>
+                      </li>
+                    }
+                  </ul>
+                }
+              </section>
+
+              <section class="column" aria-label="Enemies">
+                <h3 class="column__title">Enemies</h3>
+                @if (enemies.length === 0) {
+                  <p class="column__empty">No enemies yet.</p>
+                } @else {
+                  <ul class="combatant-list">
+                    @for (combatant of enemies; track combatant.id) {
+                      <li
+                        class="combatant"
+                        [class.combatant--defeated]="combatant.defeated"
+                        [class.combatant--low]="
+                          !combatant.defeated && hpPercent(combatant) <= 25
+                        "
+                      >
+                        <div class="combatant__head">
+                          <span class="combatant__name">{{ combatant.name }}</span>
+                          <span class="badge">{{ sideLabel(combatant.kind) }}</span>
+                        </div>
+                        <span
+                          class="hp-bar"
+                          role="img"
+                          aria-label="{{ combatant.name }} health {{ combatant.hitPoints }} of {{ combatant.maxHitPoints }}"
+                        >
+                          <span
+                            class="hp-bar__fill"
+                            [style.width.%]="hpPercent(combatant)"
+                          ></span>
+                        </span>
+                        <p class="combatant__hp">{{ healthLabel(combatant) }}</p>
+                      </li>
+                    }
+                  </ul>
+                }
+              </section>
+            </div>
+
+            <!-- Completion banner -->
+            @if (complete) {
+              <div
+                class="banner banner--win"
+                role="status"
+              >
+                Encounter complete.
+                @if (winner) {
+                  <span>The <strong>{{ winner }}</strong> side wins.</span>
+                }
+              </div>
+            }
+
+            <!-- Controls -->
+            @if (isActive) {
+              <div class="controls">
+                <button
+                  class="btn btn--primary"
+                  type="button"
+                  [disabled]="submitting || complete"
+                  (click)="nextTurn()"
+                >
+                  Next turn
+                </button>
+
+                <div class="controls__group">
+                  <span class="controls__group-title">Add combatant</span>
+                  <button
+                    class="btn btn--ghost"
+                    type="button"
+                    [disabled]="submitting"
+                    (click)="addCombatant(CombatantKindRef.PLAYER)"
+                  >
+                    Add hero
+                  </button>
+                  <button
+                    class="btn btn--ghost"
+                    type="button"
+                    [disabled]="submitting"
+                    (click)="addCombatant(CombatantKindRef.ENEMY)"
+                  >
+                    Add enemy
+                  </button>
+                </div>
+
+                <form class="control-form" (ngSubmit)="applyDamageToCombatant()">
+                  <span class="controls__group-title">Damage</span>
+                  <select class="form__select" formControlName="combatantId" aria-label="Target for damage">
+                    <option value="">Target…</option>
+                    @for (combatant of combatantsList; track combatant.id) {
+                      <option [value]="combatant.id">{{ combatant.name }}</option>
+                    }
+                  </select>
+                  <input
+                    class="form__input control-form__number"
+                    type="number"
+                    formControlName="amount"
+                    placeholder="Dmg"
+                    aria-label="Damage amount"
+                  />
+                  <button class="btn btn--danger" type="submit" [disabled]="submitting">
+                    Apply
+                  </button>
+                </form>
+
+                <form class="control-form" (ngSubmit)="applyHeal()">
+                  <span class="controls__group-title">Heal</span>
+                  <select class="form__select" formControlName="combatantId" aria-label="Target for healing">
+                    <option value="">Target…</option>
+                    @for (combatant of combatantsList; track combatant.id) {
+                      <option [value]="combatant.id">{{ combatant.name }}</option>
+                    }
+                  </select>
+                  <input
+                    class="form__input control-form__number"
+                    type="number"
+                    formControlName="amount"
+                    placeholder="Heal"
+                    aria-label="Heal amount"
+                  />
+                  <button class="btn btn--success" type="submit" [disabled]="submitting">
+                    Apply
+                  </button>
+                </form>
+
+                <form class="control-form" (ngSubmit)="runEnemyAttack()">
+                  <span class="controls__group-title">Enemy attack</span>
+                  <select class="form__select" formControlName="combatantId" aria-label="Enemy attacking">
+                    <option value="">Enemy…</option>
+                    @for (enemy of enemies; track enemy.id) {
+                      <option [value]="enemy.id">{{ enemy.name }}</option>
+                    }
+                  </select>
+                  <input
+                    class="form__input control-form__number"
+                    type="number"
+                    formControlName="attackBonus"
+                    placeholder="+Atk"
+                    aria-label="Attack bonus"
+                  />
+                  <input
+                    class="form__input control-form__number"
+                    type="number"
+                    formControlName="damage"
+                    placeholder="Dmg"
+                    aria-label="Damage"
+                  />
+                  <input
+                    class="form__input control-form__number"
+                    type="number"
+                    formControlName="difficulty"
+                    placeholder="DC"
+                    aria-label="Difficulty"
+                  />
+                  <button class="btn btn--danger" type="submit" [disabled]="submitting">
+                    Attack
+                  </button>
+                </form>
+              </div>
+            }
+
+            @if (isFinished) {
+              <div class="board__actions">
+                <button
+                  class="btn btn--primary"
+                  type="button"
+                  [disabled]="submitting"
+                  (click)="finishEncounter()"
+                >
+                  Mark encounter finished
+                </button>
+              </div>
+            }
+          </section>
+        } @else {
+          <!-- Encounter picker / starter -->
+          <section class="start" aria-label="Start an encounter">
+            @if (encounterList.length === 0) {
+              <p class="panel__empty">
+                This campaign has no encounters yet. Start one below.
+              </p>
+            } @else {
+              <ul class="start__list">
+                @for (item of encounterList; track item.id) {
+                  <li class="start__item">
+                    <button class="start__select" (click)="selectEncounter(item)">
+                      <span class="start__name">{{ item.name || 'Encounter' }}</span>
+                      <span class="badge">{{ statusLabel(item.status) }}</span>
+                    </button>
+                  </li>
+                }
+              </ul>
+            }
+
+            <form class="start__form" (ngSubmit)="startEncounter()">
+              <span class="start__label">New encounter</span>
+              <input
+                type="text"
+                formControlName="name"
+                class="form__input"
+                placeholder="Optional name"
+                maxlength="200"
+              />
+              <button class="btn btn--primary" type="submit" [disabled]="submitting">
+                Start encounter
+              </button>
+            </form>
+            @if (error) {
+              <div class="banner banner--error" role="alert">{{ error }}</div>
+            }
+          </section>
+        }
+      </div>
+
+      <!-- Sidebar: game log of combat events and dice results -->
+      <aside class="encounters__sidebar">
+        <section class="panel" aria-label="Combat log">
+          <h2 class="panel__title">Combat log</h2>
+          <p class="panel__hint">Combat events and dice results.</p>
+          <app-game-log />
+        </section>
+      </aside>
+    </div>
+    }
+  }
+</section>

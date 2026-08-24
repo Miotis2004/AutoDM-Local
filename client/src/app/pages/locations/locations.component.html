@@ -1,0 +1,99 @@
+<section class="page" aria-label="Locations">
+  <h1 class="page__title">Locations</h1>
+  <p class="page__intro">
+    Manage the places in your world. Create a location, group it under a region, and mark places
+    discovered as the party explores them.
+  </p>
+
+  @if (!this.hasCampaign) {
+    <p class="list__prompt">Select a campaign to manage its locations.</p>
+  } @else {
+    @if (error) {
+      <div class="banner banner--error" role="alert">{{ error }}</div>
+    }
+
+    <section class="create" aria-labelledby="create-title">
+      <h2 id="create-title" class="create__title">Create a location</h2>
+      <form class="create__form" [formGroup]="createForm" (ngSubmit)="createLocation()">
+        <div class="form__row">
+          <label class="form__label" for="create-name-input">Name <span class="form__required">*</span></label>
+          <input id="create-name-input" class="form__input" type="text" formControlName="name" placeholder="The Crossroads" maxlength="120" />
+          @if (createForm.get('name')?.dirty && getError('name')) {
+            <span class="form__invalid">{{ getError('name') }}</span>
+          }
+        </div>
+
+        <div class="form__grid">
+          <div class="form__row">
+            <label class="form__label" for="create-region-input">Region</label>
+            <select id="create-region-input" class="form__select" formControlName="regionId">
+              <option value="">-- no region --</option>
+              @for (region of regionList; track region.id) {
+                <option [value]="region.id">{{ region.name }}</option>
+              }
+            </select>
+          </div>
+          <div class="form__row">
+            <label class="form__label" for="create-notes-input">Description</label>
+            <input id="create-notes-input" class="form__input" type="text" formControlName="description" placeholder="Optional description" />
+          </div>
+        </div>
+
+        <div class="form__grid">
+          <div class="form__row">
+            <label class="form__label" for="create-lat-input">Latitude</label>
+            <input id="create-lat-input" class="form__input" type="number" step="any" formControlName="latitude" placeholder="Optional" />
+          </div>
+          <div class="form__row">
+            <label class="form__label" for="create-lon-input">Longitude</label>
+            <input id="create-lon-input" class="form__input" type="number" step="any" formControlName="longitude" placeholder="Optional" />
+          </div>
+        </div>
+
+        <button class="btn btn--primary" type="submit" [disabled]="submitting">Create location</button>
+      </form>
+    </section>
+
+    <section aria-labelledby="list-title">
+      <h2 id="list-title" class="list__title">
+        Places
+        @if (locationList.length) {
+          <span class="list__count">{{ locationList.length }}</span>
+        }
+      </h2>
+
+      @if (loading) {
+        <p class="list__empty">Loading locations&hellip;</p>
+      } @else if (!locationList.length) {
+        <p class="list__empty">No locations yet. Create your first location above to get started.</p>
+      } @else {
+        <div class="card-grid">
+          @for (location of locationList; track location.id) {
+            <article class="card" aria-label="Location {{ location.name }}">
+              <div class="card__head">
+                <h2 class="card__title">{{ location.name }}</h2>
+                @if (location.discovered) {
+                  <span class="badge badge--friendly">Discovered</span>
+                } @else {
+                  <span class="badge badge--neutral">Undiscovered</span>
+                }
+              </div>
+
+              @if (location.description) {
+                <p class="card__desc">{{ location.description }}</p>
+              }
+
+              @if (location.description || (location.discovered)) {
+                <ul class="card__actions">
+                  @if (!location.discovered) {
+                    <li><button class="btn btn--sm btn--primary" type="button" [disabled]="submitting" (click)="discover(location)">Discover</button></li>
+                  }
+                </ul>
+              }
+            </article>
+          }
+        </div>
+      }
+    </section>
+  }
+</section>

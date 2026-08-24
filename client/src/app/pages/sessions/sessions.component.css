@@ -1,0 +1,181 @@
+/* Sessions page styles. Shared page/card classes live in the global styles.css. */
+
+.controls {
+  margin-bottom: 2.5rem;
+  padding: 1.25rem 1.5rem;
+  border-radius: 0.75rem;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+}
+
+.controls__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.controls__title {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 650;
+}
+
+.controls__campaign {
+  color: #2563eb;
+}
+
+.controls__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.controls__active {
+  margin: 1rem 0 0;
+  font-size: 0.9rem;
+  color: #4b5563;
+}
+
+/* Session history list */
+.session-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid #e5e7eb;
+  border-left: 4px solid #d1d5db;
+  background: #ffffff;
+}
+
+.session-row--active {
+  border-left-color: #16a34a;
+  background: #f0fdf4;
+}
+
+.session-row__toggle {
+  flex: none;
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 0.15rem;
+  color: #6b7280;
+  font-size: 0.7rem;
+}
+
+.session-row__chevron {
+  display: inline-block;
+  transition: transform 0.15s ease;
+}
+
+.session-row__chevron--open {
+  transform: rotate(180deg);
+}
+
+.session-row__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+}
+
+.session-row__top {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.session-row__id {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.session-row__times {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.1rem;
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+.session-row__events {
+  font-size: 0.8rem;
+  color: #4b5563;
+  font-style: italic;
+}
+
+/* Expanded events */
+.events {
+  margin-top: 1rem;
+  padding: 1rem 1.25rem;
+  border-radius: 0.75rem;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+}
+
+.events__title {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+  font-weight: 650;
+}
+
+.events__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.events__item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+}
+
+.events__type {
+  flex: none;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #3730a3;
+  background: #eef2ff;
+  padding: 0.15rem 0.45rem;
+  border-radius: 0.35rem;
+  white-space: nowrap;
+}
+
+.events__desc {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.85rem;
+  color: #374151;
+}
+
+.events__time {
+  flex: none;
+  font-size: 0.75rem;
+  color: #6b7280;
+  white-space: nowrap;
+}
+
+/* Status badges */
+.badge--active {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.badge--ended {
+  background: #e5e7eb;
+  color: #374151;
+}

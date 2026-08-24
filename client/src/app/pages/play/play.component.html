@@ -1,0 +1,238 @@
+<section class="page" aria-label="Play">
+  <h1 class="page__title">Play</h1>
+  <p class="page__intro">
+    Drive the current scene. Issue actions and watch the Dungeon Master engine respond.
+  </p>
+
+  <!-- No campaign selected -->
+  @if (!hasCampaign) {
+    <p class="list__prompt">
+      Select a campaign from the campaigns screen to begin playing.
+    </p>
+  } @else {
+    @if (loading) {
+      <p class="list__empty">Loading scene&hellip;</p>
+    } @else {
+    <div class="play">
+      <!-- Primary column: scene, narrative log, and action input -->
+      <div class="play__main">
+        <!-- DM narrative -->
+        <section class="scene" aria-label="Scene" [class.scene--encounter]="hasEncounter">
+          <div class="scene__head">
+            <h2 class="scene__title">
+              {{ sceneBrief?.sceneTitle ?? currentSceneTitle }}
+            </h2>
+            @if (hasEncounter) {
+              <span class="badge badge--danger">Encounter</span>
+            }
+          </div>
+          <p class="scene__narrative">
+            {{ sceneBrief?.sceneNarrative || 'Issue an action below to reveal the scene.' }}
+          </p>
+        </section>
+
+        <!-- Narrative log -->
+        <app-game-log />
+
+        <!-- Action input -->
+        <section class="action" aria-label="Action input">
+          <h2 class="action__title">Issue an action</h2>
+
+          @if (error) {
+            <div class="banner banner--error" role="alert">{{ error }}</div>
+          }
+
+          <form class="action__form" [formGroup]="actionForm" (ngSubmit)="submitAction()">
+            <div class="form__row">
+              <label class="form__label" for="action-input">Action</label>
+              <input
+                id="action-input"
+                class="form__input action__input"
+                type="text"
+                formControlName="action"
+                placeholder="E.g. I investigate the shattered archway"
+                maxlength="500"
+              />
+              @if (actionForm.get('action')?.dirty && actionForm.get('action')?.errors?.['required']) {
+                <span class="form__invalid">Describe what you want to do.</span>
+              }
+            </div>
+
+            <div class="action__overrides">
+              <label>
+                <span class="action__override-label">Stat</span>
+                <input
+                  type="text"
+                  formControlName="statistic"
+                  class="form__input action__override"
+                  placeholder="Athletics"
+                />
+              </label>
+              <label>
+                <span class="action__override-label">Modifier</span>
+                <input
+                  type="number"
+                  formControlName="modifier"
+                  class="form__input action__override"
+                  placeholder="+3"
+                />
+              </label>
+              <label>
+                <span class="action__override-label">Difficulty</span>
+                <input
+                  type="number"
+                  formControlName="difficulty"
+                  class="form__input action__override"
+                  placeholder="15"
+                />
+              </label>
+            </div>
+
+            <div class="action__actions">
+              <button class="btn btn--primary" type="submit" [disabled]="submitting">
+                Send action
+              </button>
+              <button class="btn btn--ghost" type="button" [disabled]="submitting" (click)="advanceScene()">
+                Advance scene
+              </button>
+            </div>
+          </form>
+
+          @if (response) {
+            <ul class="response">
+              @if (response.recognized) {
+                <li class="response__line">
+                  <span class="response__tag">Response</span>
+                  {{ response.response }}
+                </li>
+              } @else {
+                @if (response.validationErrors?.length) {
+                  <li class="response__line response__line--error">
+                    <span class="response__tag">Validation</span>
+                    {{ response.validationErrors[0] }}
+                  </li>
+                }
+              }
+              @if (response.check) {
+                <li class="response__line">
+                  <span class="response__tag">Check</span>
+                  {{ response.check.statistic }}
+                  {{ response.check.modifier >= 0 ? '+' : '' }}{{ response.check.modifier }}
+                  = {{ response.check.total }}
+                  ({{ response.check.difficulty }}) -
+                  {{ response.check.success ? 'Success' : 'Failure' }}
+                </li>
+              }
+              @for (effect of response.effects; track $index) {
+                <li class="response__line">
+                  <span class="response__tag system">System</span>
+                  {{ effect }}
+                </li>
+              }
+            </ul>
+          }
+        </section>
+      </div>
+
+      <!-- Sidebar: party, scene/location, NPCs, encounter and rolls -->
+      <aside class="play__sidebar">
+        <!-- Party summary -->
+        <section class="panel" aria-label="Party">
+          <h2 class="panel__title">Party <span class="panel__count">{{ characters.length }}</span></h2>
+          @if (!hasParty) {
+            <p class="panel__empty">No characters yet.</p>
+          } @else {
+            <ul class="party">
+              @for (character of characters; track character.id) {
+                <li class="party__member" [class.party__member--low]="hpPercent(character) <= 25">
+                  <div class="party__head">
+                    <span class="party__name">{{ character.name }}</span>
+                    <span class="badge">{{ character.level }}</span>
+                  </div>
+                  @if (character.characterClass || character.ancestry) {
+                    <p class="party__meta">{{ characterIdentity(character) }}</p>
+                  }
+                  <ul class="party__stats">
+                    <li><span class="party__stat-label">HP</span> {{ character.hitPoints }} / {{ character.maxHitPoints }}</li>
+                    <li><span class="party__stat-label">AC</span> {{ character.armorClass }}</li>
+                  </ul>
+                  <span class="hp-bar" role="img" aria-label="{{ character.name }} health {{ character.hitPoints }} of {{ character.maxHitPoints }}">
+                    <span class="hp-bar__fill" [style.width.%]="hpPercent(character)"></span>
+                  </span>
+                </li>
+              }
+            </ul>
+          }
+        </section>
+
+        <!-- Scene / location -->
+        <section class="panel" aria-label="Scene and location">
+          <h2 class="panel__title">Scene &amp; Location</h2>
+          <p class="panel__field">
+            <span class="panel__field-label">Scene</span>
+            {{ sceneBrief?.sceneTitle || currentSceneTitle || '—' }}
+          </p>
+          <p class="panel__field">
+            <span class="panel__field-label">Location</span>
+            {{ currentLocation || '—' }}
+          </p>
+        </section>
+
+        <!-- Relevant NPCs -->
+        <section class="panel" aria-label="Relevant NPCs">
+          <h2 class="panel__title">Relevant NPCs</h2>
+          @if (npcs.length === 0) {
+            <p class="panel__empty">No relevant NPCs in this scene.</p>
+          } @else {
+            <ul class="npcs">
+              @for (npc of npcs; track npc.id) {
+                <li class="npc">
+                  <div class="npc__head">
+                    <span class="npc__name">{{ npc.name }}</span>
+                    @if (dispositionBadge(npc)) {
+                      <span class="badge">{{ dispositionBadge(npc) }}</span>
+                    }
+                  </div>
+                  @if (npcLine(npc)) {
+                    <p class="npc__meta">{{ npcLine(npc) }}</p>
+                  }
+                </li>
+              }
+            </ul>
+          }
+        </section>
+
+        <!-- Encounter status and recent rolls -->
+        <section class="panel" aria-label="Encounter and rolls">
+          <h2 class="panel__title">Encounter</h2>
+          <p class="panel__field">
+            <span class="badge" [class.badge--encounter]="hasEncounter" [class.badge--peach]="!hasEncounter">
+              {{ encounterStatus() }}
+            </span>
+          </p>
+          @if (sceneBrief?.combatants?.length) {
+            <ul class="combatants">
+              @for (combatant of sceneBrief.combatants; track $index) {
+                <li>{{ combatant }}</li>
+              }
+            </ul>
+          }
+          <h3 class="rolls__title">Recent rolls</h3>
+          @if (recentRolls.length === 0) {
+            <p class="panel__empty">No rolls yet.</p>
+          } @else {
+            <ul class="rolls">
+              @for (roll of recentRolls; track $index) {
+                <li class="roll">
+                  <span class="roll__title">{{ roll.title }}</span>
+                  <span class="roll__message">{{ roll.message }}</span>
+                </li>
+              }
+            </ul>
+          }
+        </section>
+      </aside>
+    </div>
+    }
+  }
+</section>

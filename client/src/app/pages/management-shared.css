@@ -1,0 +1,365 @@
+/* Shared UI primitives for the management screens.
+ *
+ * <p>Every feature page (characters, NPCs, locations, quests, factions, items, creature
+ * templates, history) renders the same building blocks: an error banner, a create form, a grid of
+ * cards, an inline edit form, and a destructive-action modal. Keeping those primitives in one file
+ * guarantees a consistent look and keeps each page's own stylesheet small.</p>
+ */
+
+/* Error / validation banner */
+.banner {
+  margin: 0 0 1.25rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid #fca5a5;
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.form__invalid {
+  color: #dc2626;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+/* Create form */
+.create {
+  margin-bottom: 2.5rem;
+}
+
+.create__title {
+  margin: 0 0 1rem;
+  font-size: 1.2rem;
+  font-weight: 650;
+}
+
+.create__form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  border-radius: 0.75rem;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+}
+
+.form__row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.form__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.form__label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.form__required {
+  color: #dc2626;
+}
+
+.form__input,
+.form__textarea,
+.form__select {
+  padding: 0.55rem 0.7rem;
+  font-size: 0.95rem;
+  color: #111827;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+}
+
+.form__input:focus,
+.form__textarea:focus,
+.form__select:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.form__textarea {
+  resize: vertical;
+}
+
+/* Buttons */
+.btn {
+  padding: 0.55rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.btn--primary {
+  background: #2563eb;
+  color: #ffffff;
+  border-color: #2563eb;
+}
+
+.btn--primary:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
+.btn--ghost {
+  background: #ffffff;
+  color: #374151;
+  border-color: #d1d5db;
+}
+
+.btn--ghost:hover:not(:disabled) {
+  background: #f3f4f6;
+}
+
+.btn--warn {
+  background: #ffffff;
+  color: #b45309;
+  border-color: #fcd34d;
+}
+
+.btn--warn:hover:not(:disabled) {
+  background: #fffbeb;
+}
+
+.btn--danger {
+  background: #dc2626;
+  color: #ffffff;
+  border-color: #dc2626;
+}
+
+.btn--danger:hover:not(:disabled) {
+  background: #b91c1c;
+}
+
+.btn--sm {
+  padding: 0.35rem 0.7rem;
+  font-size: 0.82rem;
+}
+
+/* List */
+.list__title {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin: 0 0 1rem;
+  font-size: 1.2rem;
+  font-weight: 650;
+}
+
+.list__count {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #6b7280;
+}
+
+.list__empty {
+  padding: 1.5rem;
+  text-align: center;
+  color: #6b7280;
+  background: #ffffff;
+  border: 1px dashed #d1d5db;
+  border-radius: 0.75rem;
+}
+
+.list__prompt {
+  padding: 2rem;
+  text-align: center;
+  color: #6b7280;
+  background: #ffffff;
+  border: 1px dashed #d1d5db;
+  border-radius: 0.75rem;
+}
+
+.card__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.card__title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 650;
+}
+
+.badge {
+  flex: none;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border-radius: 999px;
+  background: #e5e7eb;
+  color: #6b7280;
+}
+
+.badge--friendly {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.badge--neutral {
+  background: #e5e7eb;
+  color: #6b7280;
+}
+
+.badge--hostile {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.badge--completed {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.badge--failed {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.card__desc {
+  margin: 0.4rem 0 0.75rem;
+  font-size: 0.9rem;
+  color: #4b5563;
+}
+
+.card__meta {
+  list-style: none;
+  margin: 0 0 0.75rem;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.chip-row {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.chip {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.65rem;
+  font-size: 0.9rem;
+  color: #111827;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 999px;
+}
+
+.card__meta-label {
+  font-weight: 600;
+  color: #374151;
+}
+
+.card__notes {
+  margin: 0 0 0.75rem;
+  font-size: 0.85rem;
+  color: #6b7280;
+  font-style: italic;
+  white-space: pre-wrap;
+}
+
+.card__actions {
+  list-style: none;
+  margin: 0;
+  padding: 0.75rem 0 0;
+  border-top: 1px solid #f3f4f6;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* Inline edit */
+.card--editing {
+  border-color: #2563eb;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.12);
+}
+
+.edit {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.edit__title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 650;
+}
+
+.edit__actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Modal */
+.modal__scrim {
+  position: fixed;
+  inset: 0;
+  background: rgba(17, 24, 39, 0.45);
+  z-index: 40;
+}
+
+.modal {
+  position: fixed;
+  z-index: 50;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(92vw, 26rem);
+  padding: 1.5rem;
+  background: #ffffff;
+  border-radius: 0.75rem;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 12px 32px rgba(17, 24, 39, 0.28);
+}
+
+.modal__title {
+  margin: 0 0 0.5rem;
+  font-size: 1.15rem;
+  font-weight: 650;
+  color: #111827;
+}
+
+.modal__body {
+  margin: 0 0 1.25rem;
+  font-size: 0.95rem;
+  color: #4b5563;
+}
+
+.modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+@media (max-width: 40rem) {
+  .form__grid {
+    grid-template-columns: 1fr;
+  }
+}

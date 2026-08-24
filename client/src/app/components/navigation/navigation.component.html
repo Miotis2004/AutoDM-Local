@@ -1,0 +1,42 @@
+<nav class="shell-nav" aria-label="Primary">
+  <a class="shell-nav__brand" routerLink="/">AutoDM</a>
+  <ul class="shell-nav__links">
+    <li>
+      <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Dashboard</a>
+    </li>
+    <li>
+      <a routerLink="/campaigns">Campaigns</a>
+    </li>
+    <li>
+      <a routerLink="/play">Play</a>
+    </li>
+    <li>
+      <a routerLink="/sessions">Sessions</a>
+    </li>
+    <li>
+      <a routerLink="/characters">Characters</a>
+    </li>
+    <li>
+      <a routerLink="/quests">Quests</a>
+    </li>
+    <li>
+      <a routerLink="/world">World</a>
+    </li>
+    <li>
+      <a routerLink="/npcs">NPCs</a>
+    </li>
+    <li>
+      <a routerLink="/encounters">Encounters</a>
+    </li>
+    <li>
+      <a routerLink="/history">History</a>
+    </li>
+    <li>
+      <a routerLink="/settings">Settings</a>
+    </li>
+  </ul>
+</nav>
+
+<main class="shell-main">
+  <router-outlet></router-outlet>
+</main>

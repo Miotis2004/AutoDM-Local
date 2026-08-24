@@ -1,0 +1,101 @@
+/* You can add global styles to this file, and also import other style files */
+
+:root {
+  --page-max-width: 64rem;
+  --font-scale: 1;
+  --background: #f3f4f6;
+  --surface: #ffffff;
+  --text: #111827;
+  --text-muted: #4b5563;
+  --border: #e5e7eb;
+}
+
+/* Applied by SettingsService through the data-theme attribute on <html>. */
+html[data-theme='dark'] {
+  --background: #0b0f19;
+  --surface: #151b2b;
+  --text: #e7ecf3;
+  --text-muted: #9fb0c8;
+  --border: #2a3449;
+}
+
+html[data-theme='light'] {
+  --background: #f3f4f6;
+  --surface: #ffffff;
+  --text: #111827;
+  --text-muted: #4b5563;
+  --border: #e5e7eb;
+}
+
+/* Applied by SettingsService through the --font-scale custom property. */
+/* Applied by SettingsService through the data-compact attribute. */
+html[data-compact='true'] .card {
+  padding: 0.85rem 1rem;
+}
+html[data-compact='true'] .page__title {
+  font-size: 1.5rem;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: var(--text);
+  background: var(--background);
+  font-size: calc(1rem * var(--font-scale));
+}
+
+.page {
+  max-width: var(--page-max-width);
+  margin: 0 auto;
+}
+
+.page__intro,
+.page__error {
+  color: var(--text-muted);
+}
+
+.page__title {
+  margin: 0 0 0.5rem;
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+
+.page__intro {
+  margin: 0 0 1.5rem;
+  color: #4b5563;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  gap: 1rem;
+}
+
+.card {
+  display: block;
+  padding: 1.1rem 1.25rem;
+  border-radius: 0.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.card:hover {
+  border-color: #2563eb;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.12);
+  transform: translateY(-2px);
+}
+
+.card h2 {
+  margin: 0 0 0.35rem;
+  font-size: 1.1rem;
+  font-weight: 650;
+}
+
+.card p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
